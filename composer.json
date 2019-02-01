@@ -1,0 +1,45 @@
+{
+    "name": "venveo/document-search",
+    "description": "Extract the contents of text documents and add to Craft's search index",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "document search"
+    ],
+    "support": {
+        "docs": "https://github.com/venveo/document-search/blob/master/README.md",
+        "issues": "https://github.com/venveo/document-search/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Venveo",
+            "homepage": "https://venveo.com"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0-RC1",
+        "spatie/pdf-to-text": "^1.1",
+        "yooper/php-text-analysis": "^1.4"
+    },
+    "autoload": {
+        "psr-4": {
+          "venveo\\documentsearch\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Document Search",
+        "handle": "document-search",
+        "hasCpSettings": true,
+        "hasCpSection": false,
+        "changelogUrl": "https://raw.githubusercontent.com/venveo/document-search/master/CHANGELOG.md",
+        "components": {
+            "documentSearch": "venveo\\documentsearch\\services\\DocumentSearch"
+        },
+        "class": "venveo\\documentsearch\\DocumentSearch"
+    }
+}

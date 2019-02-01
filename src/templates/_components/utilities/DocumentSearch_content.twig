@@ -1,0 +1,24 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Document Search plugin for Craft CMS
+ *
+ * DocumentSearch Utility Content
+ *
+ * @author    Venveo
+ * @copyright Copyright (c) 2019 Venveo
+ * @link      https://venveo.com
+ * @package   DocumentSearch
+ * @since     1.0.0
+ */
+#}
+
+<h1>DocumentSearch</h1>
+
+{% set iconUrl = view.getAssetManager().getPublishedUrl('@venveo/documentsearch/assetbundles/documentsearchutility/dist', true) ~ '/img/DocumentSearch-icon.svg' %}
+
+<img src="{{ iconUrl }}" height="64" width="64" />
+
+<p>Your Utility content goes here</p>
+
+<p>{{ someVar }}</p>

@@ -1,0 +1,26 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Document Search plugin for Craft CMS 3.x
+ *
+ * Document Search Settings.twig
+ *
+ * @author    Venveo
+ * @copyright Copyright (c) 2019 Venveo
+ * @link      https://venveo.com
+ * @package   DocumentSearch
+ * @since     1.0.0
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("venveo\\documentsearch\\assetbundles\\documentsearch\\DocumentSearchAsset") %}
+
+{{ forms.textField({
+    label: 'Some Field',
+    instructions: 'Enter some setting here.',
+    id: 'someAttribute',
+    name: 'someAttribute',
+    value: settings['someAttribute']})
+}}
