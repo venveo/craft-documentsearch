@@ -14,6 +14,7 @@ use craft\elements\Asset;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\RegisterElementSearchableAttributesEvent;
 use venveo\documentsearch\behaviors\AssetContentBehavior;
+use venveo\documentsearch\services\DocumentContentService;
 use venveo\documentsearch\services\RakeService;
 use venveo\documentsearch\models\Settings;
 use venveo\documentsearch\utilities\DocumentSearch as DocumentSearchUtility;
@@ -39,27 +40,14 @@ use yii\base\Event;
  * @since     1.0.0
  *
  * @property  RakeService $rake
+ * @property  DocumentContentService $documentContent
  */
 class DocumentSearch extends Plugin
 {
-    // Static Properties
-    // =========================================================================
-
     /**
      * @var DocumentSearch
      */
     public static $plugin;
-
-    // Public Properties
-    // =========================================================================
-
-    /**
-     * @var string
-     */
-    public $schemaVersion = '1.0.0';
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -74,17 +62,10 @@ class DocumentSearch extends Plugin
         }
 
         $this->setComponents([
-            'rake' => RakeService::class
+            'rake' => RakeService::class,
+            'documentContent' => DocumentContentService::class
         ]);
-//
-//        Event::on(
-//            UrlManager::class,
-//            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-//            function (RegisterUrlRulesEvent $event) {
-//                $event->rules['siteActionTrigger1'] = 'document-search/document-search';
-//            }
-//        );
-//
+
 //        Event::on(
 //            UrlManager::class,
 //            UrlManager::EVENT_REGISTER_CP_URL_RULES,

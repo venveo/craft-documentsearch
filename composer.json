@@ -24,7 +24,8 @@
     "require": {
         "craftcms/cms": "^3.0.0-RC1",
         "spatie/pdf-to-text": "^1.1",
-        "yooper/php-text-analysis": "^1.4"
+        "yooper/php-text-analysis": "^1.4",
+        "voku/stop-words": "^2.0"
     },
     "autoload": {
         "psr-4": {

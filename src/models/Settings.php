@@ -28,7 +28,7 @@ class Settings extends Model
     /**
      * @var string
      */
-    public $someAttribute = 'Some Default';
+    public $pdfToTextExecutable = '/usr/local/bin/pdftotext';
 
     // Public Methods
     // =========================================================================
@@ -39,8 +39,7 @@ class Settings extends Model
     public function rules()
     {
         return [
-            ['someAttribute', 'string'],
-            ['someAttribute', 'default', 'value' => 'Some Default'],
+            ['pdfToTextExecutable', 'string'],
         ];
     }
 }
