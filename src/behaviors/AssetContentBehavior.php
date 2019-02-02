@@ -29,7 +29,7 @@ class AssetContentBehavior extends Behavior
         $asset = $this->owner;
         if ($asset->kind == 'pdf') {
             $text = Pdf::getText($asset->getCopyOfFile(), '/usr/local/bin/pdftotext');
-            $scoredKeywords = DocumentSearch::$plugin->documentSearch->getKeywordScores($text);
+            $scoredKeywords = DocumentSearch::$plugin->rake->getKeywordScores($text);
             $results = implode(' ', array_keys($scoredKeywords));
             return $results;
         }

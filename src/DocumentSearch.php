@@ -14,8 +14,7 @@ use craft\elements\Asset;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\RegisterElementSearchableAttributesEvent;
 use venveo\documentsearch\behaviors\AssetContentBehavior;
-use venveo\documentsearch\services\DocumentSearch as DocumentSearchService;
-use venveo\documentsearch\variables\DocumentSearchVariable;
+use venveo\documentsearch\services\RakeService;
 use venveo\documentsearch\models\Settings;
 use venveo\documentsearch\utilities\DocumentSearch as DocumentSearchUtility;
 
@@ -39,7 +38,7 @@ use yii\base\Event;
  * @package   DocumentSearch
  * @since     1.0.0
  *
- * @property  DocumentSearchService $documentSearch
+ * @property  RakeService $rake
  */
 class DocumentSearch extends Plugin
 {
@@ -75,7 +74,7 @@ class DocumentSearch extends Plugin
         }
 
         $this->setComponents([
-            'documentSearch' => DocumentSearchService::class
+            'rake' => RakeService::class
         ]);
 //
 //        Event::on(
