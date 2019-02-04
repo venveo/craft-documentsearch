@@ -24,7 +24,8 @@
 
 return [
 
-    // This controls blah blah blah
-    "pdfToTextExecutable" => '/usr/bin/',
+    'pdfToTextExecutable' => '/usr/local/bin/pdftotext',
+    'maximumKeywords' => 100,
+    'maximumDocumentSize' => 1024 * 5
 
 ];

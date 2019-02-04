@@ -36,7 +36,7 @@ class DocumentContentService extends Component
             $languageParts = explode('-', $language);
             $languageShort = strtolower(array_shift($languageParts));
             $scoredKeywords = Plugin::$plugin->rake->getKeywordScores($text, $languageShort);
-            $results = implode(' ', array_keys($scoredKeywords));
+            $results = implode(' ', array_slice(array_keys($scoredKeywords), 0, Plugin::$plugin->getSettings()->maximumKeywords - 1));
         } else {
             return null;
         }
