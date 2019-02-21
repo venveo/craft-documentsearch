@@ -10,9 +10,6 @@
 
 namespace venveo\documentsearch\models;
 
-use venveo\documentsearch\DocumentSearch;
-
-use Craft;
 use craft\base\Model;
 
 /**
