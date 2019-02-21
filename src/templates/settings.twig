@@ -15,11 +15,20 @@
 
 {% import "_includes/forms" as forms %}
 
-{{ forms.autosuggestField({
-  label: "Location of pdftotext executable on server"|t('document-search'),
-  id: 'pdfToTextExecutable',
-  name: 'pdfToTextExecutable',
-  required: true,
-  value: settings['pdfToTextExecutable'],
-  suggestEnvVars: true
-}) }}
+<div class="readable">
+  {{ forms.autosuggestField({
+    label: "Location of pdftotext executable on server"|t('document-search'),
+    id: 'pdfToTextExecutable',
+    name: 'pdfToTextExecutable',
+    required: true,
+    errors: (not binaries.pdftotext),
+    value: settings['pdfToTextExecutable'],
+    suggestEnvVars: true
+  }) }}
+
+  {% if not binaries.pdftotext %}
+    <div class="field">
+      <p class="warning">Could not locate required binary: <code>pdftotext</code></p>
+    </div>
+  {% endif %}
+</div>

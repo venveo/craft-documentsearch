@@ -22,37 +22,14 @@ use craft\web\Controller;
  */
 class DocumentSearchController extends Controller
 {
-
-    // Protected Properties
-    // =========================================================================
-
-    /**
-     * @var    bool|array Allows anonymous access to this controller's actions.
-     *         The actions must be in 'kebab-case'
-     * @access protected
-     */
-    protected $allowAnonymous = ['index', 'do-something'];
-
     // Public Methods
     // =========================================================================
 
     /**
      * @return mixed
      */
-    public function actionIndex()
+    public function checkPDFExecutable()
     {
-        $result = 'Welcome to the DocumentSearchController actionIndex() method';
 
-        return $result;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function actionDoSomething()
-    {
-        $result = 'Welcome to the DocumentSearchController actionDoSomething() method';
-
-        return $result;
     }
 }

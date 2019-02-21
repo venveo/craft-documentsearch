@@ -103,7 +103,10 @@ class DocumentSearch extends Plugin
         return Craft::$app->view->renderTemplate(
             'document-search/settings',
             [
-                'settings' => $this->getSettings()
+                'settings' => $this->getSettings(),
+                'binaries' => [
+                    'pdftotext' => is_file($this->getSettings()->pdfToTextExecutable)
+                ]
             ]
         );
     }
