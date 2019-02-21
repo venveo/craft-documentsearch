@@ -14,9 +14,10 @@ use yii\base\Behavior;
  */
 class AssetContentBehavior extends Behavior
 {
-    // Properties
-    // =========================================================================
-
+    /**
+     * @return string|null
+     * @throws \yii\base\InvalidConfigException
+     */
     public function getContentKeywords()
     {
         /** @var Asset $asset */

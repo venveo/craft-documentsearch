@@ -10,26 +10,19 @@
 
 namespace venveo\documentsearch;
 
-use craft\elements\Asset;
-use craft\events\DefineBehaviorsEvent;
-use craft\events\RegisterElementSearchableAttributesEvent;
-use venveo\documentsearch\behaviors\AssetContentBehavior;
-use venveo\documentsearch\services\DocumentContentService;
-use venveo\documentsearch\services\RakeService;
-use venveo\documentsearch\models\Settings;
-use venveo\documentsearch\utilities\DocumentSearch as DocumentSearchUtility;
-
 use Craft;
 use craft\base\Plugin;
-use craft\services\Plugins;
-use craft\events\PluginEvent;
 use craft\console\Application as ConsoleApplication;
-use craft\web\UrlManager;
-use craft\services\Utilities;
-use craft\web\twig\variables\CraftVariable;
+use craft\elements\Asset;
+use craft\events\DefineBehaviorsEvent;
 use craft\events\RegisterComponentTypesEvent;
-use craft\events\RegisterUrlRulesEvent;
-
+use craft\events\RegisterElementSearchableAttributesEvent;
+use craft\services\Utilities;
+use venveo\documentsearch\behaviors\AssetContentBehavior;
+use venveo\documentsearch\models\Settings;
+use venveo\documentsearch\services\DocumentContentService;
+use venveo\documentsearch\services\RakeService;
+use venveo\documentsearch\utilities\DocumentSearch as DocumentSearchUtility;
 use yii\base\Event;
 
 /**
@@ -78,7 +71,8 @@ class DocumentSearch extends Plugin
         Event::on(Asset::class, Asset::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->behaviors[] = AssetContentBehavior::class;
-            });
+            }
+        );
 
         Event::on(Asset::class, Asset::EVENT_REGISTER_SEARCHABLE_ATTRIBUTES, function(RegisterElementSearchableAttributesEvent $e) {
             $e->attributes[] = 'contentKeywords';
@@ -87,24 +81,11 @@ class DocumentSearch extends Plugin
         Event::on(
             Utilities::class,
             Utilities::EVENT_REGISTER_UTILITY_TYPES,
-            function (RegisterComponentTypesEvent $event) {
+            function(RegisterComponentTypesEvent $event) {
                 $event->types[] = DocumentSearchUtility::class;
             }
         );
-
-//
-//        Craft::info(
-//            Craft::t(
-//                'document-search',
-//                '{name} plugin loaded',
-//                ['name' => $this->name]
-//            ),
-//            __METHOD__
-//        );
     }
-
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

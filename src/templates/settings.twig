@@ -15,11 +15,11 @@
 
 {% import "_includes/forms" as forms %}
 
-{{ forms.textField({
-    label: 'Location of PDF to Text executable on server',
-    instructions: 'Enter the path to the executable for the PDF to Text executable that Document Search requires',
-    id: 'pdfToTextExecutable',
-    name: 'pdfToTextExecutable',
-    required: true,
-    value: settings['pdfToTextExecutable']})
-}}
+{{ forms.autosuggestField({
+  label: "Location of pdftotext executable on server"|t('document-search'),
+  id: 'pdfToTextExecutable',
+  name: 'pdfToTextExecutable',
+  required: true,
+  value: settings['pdfToTextExecutable'],
+  suggestEnvVars: true
+}) }}

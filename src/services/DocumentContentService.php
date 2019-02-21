@@ -10,6 +10,7 @@
 
 namespace venveo\documentsearch\services;
 
+use Craft;
 use craft\base\Component;
 use craft\elements\Asset;
 use Spatie\PdfToText\Pdf;
@@ -22,12 +23,16 @@ use venveo\documentsearch\DocumentSearch as Plugin;
  */
 class DocumentContentService extends Component
 {
-    public function getAssetContentKeywords(Asset $asset)
+    /**
+     * @param Asset $asset
+     * @return string|null
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getAssetContentKeywords(Asset $asset): ?string
     {
         if ($asset->kind == Asset::KIND_PDF) {
             $text = $this->extractContentFromPDF($asset->getCopyOfFile());
         }
-
 
         // If we have text, let's extract the keywords from it
         if (isset($text)) {
@@ -37,6 +42,7 @@ class DocumentContentService extends Component
             $languageShort = strtolower(array_shift($languageParts));
             $scoredKeywords = Plugin::$plugin->rake->getKeywordScores($text, $languageShort);
             $results = implode(' ', array_slice(array_keys($scoredKeywords), 0, Plugin::$plugin->getSettings()->maximumKeywords - 1));
+            Craft::info('Extracted '.count($scoredKeywords).' keywords from: '.$asset->id.' in '.$languageShort, __METHOD__);
         } else {
             return null;
         }
@@ -46,10 +52,12 @@ class DocumentContentService extends Component
 
     /**
      * Gets the textual content from a PDF
-     * @param $filepath
+     * @param string $filepath
      * @return string
      */
-    public function extractContentFromPDF($filepath) {
+    public function extractContentFromPDF($filepath): string
+    {
+        Craft::info('Extracting PDF content from: '. $filepath, __METHOD__);
         return Pdf::getText($filepath, Plugin::$plugin->getSettings()->pdfToTextExecutable);
     }
 }

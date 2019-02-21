@@ -41,22 +41,22 @@ class RakeService extends Component
 
     public function get($content)
     {
-        foreach($this->getContentFilters() as $contentFilter)
-        {
+        foreach ($this->getContentFilters() as $contentFilter) {
             $content = $contentFilter->transform($content);
         }
         return $this->getKeywordScores($content);
     }
+
     /**
      *
      * @return \TextAnalysis\Interfaces\ITokenTransformation[]
      */
     public function getContentFilters()
     {
-        if(empty($this->contentFilters)) {
+        if (empty($this->contentFilters)) {
 
-            $lambdaFunc = function($word){
-                return  preg_replace('/[\x00-\x1F\x80-\xFF]/u', ' ', $word);
+            $lambdaFunc = function($word) {
+                return preg_replace('/[\x00-\x1F\x80-\xFF]/u', ' ', $word);
             };
 
             $this->contentFilters = [
@@ -88,7 +88,7 @@ class RakeService extends Component
         } catch (StopWordsLanguageNotExists $e) {
             $localizedStopWords = $stopWords->getStopWordsFromLanguage('en');
         }
-        if(empty($this->tokenFilters)) {
+        if (empty($this->tokenFilters)) {
             $this->tokenFilters = [
                 new Filters\StopWordsFilter($localizedStopWords),
             ];
@@ -108,13 +108,12 @@ class RakeService extends Component
         $tokenDoc = new TokensDocument(array_map('strval', $tokens));
         unset($tokens);
 
-        foreach($this->getTokenFilters($language) as $filter)
-        {
+        foreach ($this->getTokenFilters($language) as $filter) {
             $tokenDoc->applyTransformation($filter, false);
         }
 
         $size = count($tokenDoc->toArray());
-        if($size < self::NGRAM_SIZE) {
+        if ($size < self::NGRAM_SIZE) {
             return [];
         }
 
