@@ -1,4 +1,5 @@
 # Document Search plugin for Craft CMS 3.x
+**NOTE:** This plugin is very much still in development. Don't use it.
 
 Extract the contents of text documents and add to Craft's search index
 
