@@ -28,6 +28,7 @@ class Settings extends Model
     public $pdfToTextExecutable = '/usr/local/bin/pdftotext';
     public $maximumKeywords = 100;
     public $maximumDocumentSize = 1024 * 4;
+    public $indexVolumes = [];
 
     // Public Methods
     // =========================================================================
@@ -40,6 +41,7 @@ class Settings extends Model
         return [
             ['pdfToTextExecutable', 'string'],
             [['maximumKeywords', 'maximumDocumentSize'], 'integer'],
+//            ['indexVolumes', 'array'],
         ];
     }
 }

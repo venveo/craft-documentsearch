@@ -12,6 +12,7 @@ namespace venveo\documentsearch\services;
 
 use Craft;
 use craft\base\Component;
+use craft\base\Volume;
 use craft\elements\Asset;
 use Spatie\PdfToText\Pdf;
 use venveo\documentsearch\DocumentSearch as Plugin;
@@ -30,6 +31,13 @@ class DocumentContentService extends Component
      */
     public function getAssetContentKeywords(Asset $asset): ?string
     {
+        // check to make sure the volume is allowed to be indexed
+        /** @var Volume $volume */
+        $volume = $asset->getVolume();
+        if (!in_array($volume->id, Plugin::$plugin->getSettings()['indexVolumes'])){
+            return null;
+        }
+
         if ($asset->kind == Asset::KIND_PDF) {
             $text = $this->extractContentFromPDF($asset->getCopyOfFile());
         }
