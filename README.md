@@ -42,7 +42,7 @@ settings options.
 
 The search index will populate keywords extracted from assets when they are saved. 
 Keywords for existing assets are not automatically generated, but can be generated
-using the `./craft .......` command.
+using the `./craft document-search/parse-documents/index-all` command.
 
 -Insert text here-
 

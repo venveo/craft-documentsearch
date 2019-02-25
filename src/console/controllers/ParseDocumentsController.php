@@ -10,7 +10,9 @@
 
 namespace venveo\documentsearch\console\controllers;
 
-use venveo\documentsearch\DocumentSearch;
+use craft\elements\Asset;
+use craft\elements\db\AssetQuery;
+use venveo\documentsearch\DocumentSearch as Plugin;
 
 use Craft;
 use yii\console\Controller;
@@ -43,16 +45,41 @@ class ParseDocumentsController extends Controller
     }
 
     /**
-     * Handle document-search/parse-documents/do-something console commands
+     * Handle document-search/parse-documents/index-all console commands
      *
-     * @return mixed
      */
-    public function actionDoSomething()
+    public function actionIndexAll()
     {
-        $result = 'something';
+        $volumes = Plugin::$plugin->getSettings()['indexVolumes'];
 
-        echo "Welcome to the console ParseDocumentsController actionDoSomething() method\n";
+        /** @var Asset $asset */
+        $volumeCount = 0;
+        $errorCount = 0;
+        foreach ($volumes as $volume) {
+            $assetQuery = new AssetQuery(Asset::class);
+            $assetQuery->volumeId = $volume;
 
-        return $result;
+            $assets = $assetQuery->all();
+            Console::startProgress(0, count($assets));
+            foreach ($assets as $i => $asset) {
+                try {
+                    Plugin::$plugin->documentContent->getAssetContentKeywords($asset);
+                } catch (\Exception $e) {
+//                    $this->stdout('Skipped a file - error: '. $asset->id . PHP_EOL);
+                    Craft::warning('Skipped a file - error: '. $asset->id, 'document-search');
+                    Craft::warning($e, 'document-search');
+                    $errorCount++;
+                }
+                Console::updateProgress(++$i, count($assets));
+            }
+            Console::endProgress(true);
+            $this->stdout('Finished volume '. ++$volumeCount . '/' . count($volumes) . PHP_EOL);
+        }
+
+        if ($errorCount > 0) {
+            $this->stdout('Indexing completed with ' . $errorCount . ' errors.' . PHP_EOL);
+        } else {
+            $this->stdout('Indexing completed successfully.' . PHP_EOL);
+        }
     }
 }
