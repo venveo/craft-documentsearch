@@ -15,14 +15,11 @@ use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\elements\Asset;
 use craft\events\DefineBehaviorsEvent;
-use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterElementSearchableAttributesEvent;
-use craft\services\Utilities;
 use venveo\documentsearch\behaviors\AssetContentBehavior;
 use venveo\documentsearch\models\Settings;
 use venveo\documentsearch\services\DocumentContentService;
 use venveo\documentsearch\services\RakeService;
-use venveo\documentsearch\utilities\DocumentSearch as DocumentSearchUtility;
 use yii\base\Event;
 
 /**
