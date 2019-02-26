@@ -1,16 +1,12 @@
-# Document Search plugin for Craft CMS 3.x
-**NOTE:** This plugin is very much still in development. Don't use it.
-
-Extract the contents of text documents and add to Craft's search index
-
-![Screenshot](resources/img/plugin-logo.png)
+# Document Search plugin for Craft CMS 3.1
+Extracts keywords of PDF documents and adds them to Craft CMS's native search index
 
 ## Requirements
-
-This plugin requires Craft CMS 3.0.0-beta.23 or later.
+- Craft CMS 3.1.x
+- pdftotext executable
 
 ## Installation
-
+### Plugin
 To install the plugin, follow these instructions.
 
 1. Open your terminal and go to your Craft project:
@@ -23,12 +19,21 @@ To install the plugin, follow these instructions.
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Document Search.
 
+### pdftotext Executable
+To install on Ubuntu or Debian, the precompiled binaries can be procured from aptitude:
+
+`apt-get install poppler-utils`
+
+To install on RedHat or CentOS, the precompiled binaries can be procured from yum:
+
+`yum install poppler-utils`
 ## Document Search Overview
 
 This plugin allows users to automatically extract keywords from document assets and add
 them to Craft's search index.
 
--Insert text here-
+**Note:**
+If you're looking for a full-text document search solution, this isn't it. The purpose of this plugin is to boil down large documents to consumable sizes for a PHP-based web server.
 
 ## Configuring Document Search
 
@@ -36,7 +41,11 @@ Document Search requires a runnable binary of `pdftotext`. The default file loca
 for the binary is set to `/usr/local/bin/pdftotext` but can be changed through config or
 settings options.
 
--Insert text here-
+To check if you have pdftotext installed on your server, you can run:
+
+`which pdftotext`
+
+See the installation section for notes on installing pdftotext.
 
 ## Using Document Search
 
@@ -44,7 +53,6 @@ The search index will populate keywords extracted from assets when they are save
 Keywords for existing assets are not automatically generated, but can be generated
 using the `./craft document-search/parse-documents/index-all` command.
 
--Insert text here-
 
 ## Document Search Roadmap
 
