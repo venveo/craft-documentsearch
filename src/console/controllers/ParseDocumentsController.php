@@ -10,11 +10,10 @@
 
 namespace venveo\documentsearch\console\controllers;
 
+use Craft;
 use craft\elements\Asset;
 use craft\elements\db\AssetQuery;
 use venveo\documentsearch\DocumentSearch as Plugin;
-
-use Craft;
 use yii\console\Controller;
 use yii\helpers\Console;
 
@@ -49,20 +48,20 @@ class ParseDocumentsController extends Controller
                     Plugin::$plugin->documentContent->getAssetContentKeywords($asset);
                 } catch (\Exception $e) {
 //                    $this->stdout('Skipped a file - error: '. $asset->id . PHP_EOL);
-                    Craft::warning('Skipped a file - error: '. $asset->id, 'document-search');
+                    Craft::warning('Skipped a file - error: '.$asset->id, 'document-search');
                     Craft::warning($e, 'document-search');
                     $errorCount++;
                 }
                 Console::updateProgress(++$i, count($assets));
             }
             Console::endProgress(true);
-            $this->stdout('Finished volume '. ++$volumeCount . '/' . count($volumes) . PHP_EOL);
+            $this->stdout('Finished volume '.++$volumeCount.'/'.count($volumes).PHP_EOL);
         }
 
         if ($errorCount > 0) {
-            $this->stdout('Indexing completed with ' . $errorCount . ' errors.' . PHP_EOL);
+            $this->stdout('Indexing completed with '.$errorCount.' errors.'.PHP_EOL);
         } else {
-            $this->stdout('Indexing completed successfully.' . PHP_EOL);
+            $this->stdout('Indexing completed successfully.'.PHP_EOL);
         }
     }
 }

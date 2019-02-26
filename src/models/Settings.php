@@ -1,6 +1,6 @@
 <?php
 /**
- * Document Search plugin for Craft CMS 3.x
+ * Document Search plugin for Craft CMS 3.1.x
  *
  * Extract the contents of text documents and add to Craft's search index
  *
@@ -19,12 +19,6 @@ use craft\base\Model;
  */
 class Settings extends Model
 {
-    // Public Properties
-    // =========================================================================
-
-    /**
-     * @var string
-     */
     public $pdfToTextExecutable = '/usr/local/bin/pdftotext';
     public $maximumKeywords = 100;
     public $maximumDocumentSize = 1024 * 4;

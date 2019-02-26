@@ -16,6 +16,8 @@ use craft\base\Volume;
 use craft\elements\Asset;
 use Spatie\PdfToText\Pdf;
 use venveo\documentsearch\DocumentSearch as Plugin;
+use venveo\documentsearch\models\Settings;
+use voku\helper\StopWordsLanguageNotExists;
 
 /**
  * @author    Venveo
@@ -31,13 +33,22 @@ class DocumentContentService extends Component
      */
     public function getAssetContentKeywords(Asset $asset): ?string
     {
+        /** @var Settings $settings */
+        $settings = Plugin::$plugin->getSettings();
+
         // check to make sure the volume is allowed to be indexed
         /** @var Volume $volume */
         $volume = $asset->getVolume();
-        if (!in_array($volume->id, Plugin::$plugin->getSettings()['indexVolumes'])){
+        if (!in_array($volume->id, $settings->indexVolumes, true)) {
             return null;
         }
 
+        if ($asset->size > $settings->maximumDocumentSize) {
+            Craft::info('Skipping asset ('.$asset->id.') because it exceeds maximumDocumentSize ('.$settings->maximumDocumentSize.')', __METHOD__);
+            return null;
+        }
+
+        // We're only dealing with PDFs right now
         if ($asset->kind == Asset::KIND_PDF) {
             $text = $this->extractContentFromPDF($asset->getCopyOfFile());
         }
@@ -48,10 +59,24 @@ class DocumentContentService extends Component
             $language = $asset->getSite()->language ?: 'en';
             $languageParts = explode('-', $language);
             $languageShort = strtolower(array_shift($languageParts));
-            $scoredKeywords = Plugin::$plugin->rake->getKeywordScores($text, $languageShort);
-            $results = implode(' ', array_slice(array_keys($scoredKeywords), 0, Plugin::$plugin->getSettings()->maximumKeywords - 1));
+            try {
+                $scoredKeywords = Plugin::$plugin->rake->getKeywordScores($text, $languageShort);
+            } catch (StopWordsLanguageNotExists $e) {
+                // Just do it in english
+                try {
+                    $scoredKeywords = Plugin::$plugin->rake->getKeywordScores($text);
+                    Craft::warning('Rake could not locate asset locale: '.$e->getMessage(), __METHOD__);
+                } catch (StopWordsLanguageNotExists $e) {
+                    Craft::error('Rake could not locate asset locale: '.$e->getMessage(), __METHOD__);
+                    return null;
+                }
+            }
+
+            // Assemble the keywords into a string
+            $results = implode(' ', array_slice(array_keys($scoredKeywords), 0, $settings->maximumKeywords - 1));
             Craft::info('Extracted '.count($scoredKeywords).' keywords from: '.$asset->id.' in '.$languageShort, __METHOD__);
         } else {
+            Craft::info('No text found in '.$asset->id, __METHOD__);
             return null;
         }
         return $results;
@@ -60,14 +85,15 @@ class DocumentContentService extends Component
 
     /**
      * Gets the textual content from a PDF
+     *
      * @param string $filepath
      * @return string
      */
     public function extractContentFromPDF($filepath): string
     {
-        Craft::info('Extracting PDF content from: '. $filepath, __METHOD__);
+        Craft::info('Extracting PDF content from: '.$filepath, __METHOD__);
         // change directory to guarantee writable directory
-        chdir(Craft::$app->path->getAssetsPath() . DIRECTORY_SEPARATOR );
+        chdir(Craft::$app->path->getAssetsPath().DIRECTORY_SEPARATOR);
         return Pdf::getText($filepath, Plugin::$plugin->getSettings()->pdfToTextExecutable);
     }
 }
