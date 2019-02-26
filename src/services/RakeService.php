@@ -14,6 +14,7 @@ use craft\base\Component;
 use TextAnalysis\Analysis\Keywords\Rake;
 use TextAnalysis\Documents\TokensDocument;
 use TextAnalysis\Filters;
+use TextAnalysis\Interfaces\ITokenTransformation;
 use TextAnalysis\Tokenizers\WhitespaceTokenizer;
 use voku\helper\StopWords;
 use voku\helper\StopWordsLanguageNotExists;
@@ -29,17 +30,17 @@ class RakeService extends Component
     const NGRAM_SIZE = 3;
 
     /**
-     * @var \TextAnalysis\Interfaces\ITokenTransformation[]
+     * @var ITokenTransformation[]
      */
     protected $tokenFilters = [];
 
     /**
-     * @var \TextAnalysis\Interfaces\ITokenTransformation[]
+     * @var ITokenTransformation[]
      */
     protected $contentFilters = [];
 
 
-    public function get($content)
+    public function get($content): array
     {
         foreach ($this->getContentFilters() as $contentFilter) {
             $content = $contentFilter->transform($content);
@@ -49,9 +50,9 @@ class RakeService extends Component
 
     /**
      *
-     * @return \TextAnalysis\Interfaces\ITokenTransformation[]
+     * @return ITokenTransformation[]
      */
-    public function getContentFilters()
+    public function getContentFilters(): array
     {
         if (empty($this->contentFilters)) {
 
@@ -78,7 +79,9 @@ class RakeService extends Component
 
     /**
      *
-     * @return \TextAnalysis\Interfaces\ITokenTransformation[]
+     * @param $language
+     * @return ITokenTransformation[]
+     * @throws StopWordsLanguageNotExists
      */
     public function getTokenFilters($language): array
     {
@@ -101,6 +104,7 @@ class RakeService extends Component
      * @param string $content
      * @param string $language The language to use to lookup stop words
      * @return array
+     * @throws StopWordsLanguageNotExists
      */
     public function getKeywordScores($content, $language = 'en'): array
     {

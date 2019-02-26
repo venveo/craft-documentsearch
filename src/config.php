@@ -23,9 +23,7 @@
  */
 
 return [
-
-    'pdfToTextExecutable' => '/usr/local/bin/pdftotext',
-    'maximumKeywords' => 100,
-    'maximumDocumentSize' => 1024 * 5
-
+    'pdfToTextExecutable' => '',
+    'maximumKeywords' => null,
+    'maximumDocumentSize' => null
 ];

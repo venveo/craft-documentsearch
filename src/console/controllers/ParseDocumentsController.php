@@ -27,25 +27,8 @@ use yii\helpers\Console;
  */
 class ParseDocumentsController extends Controller
 {
-    // Public Methods
-    // =========================================================================
-
     /**
-     * Handle document-search/parse-documents console commands
-     *
-     * @return mixed
-     */
-    public function actionIndex()
-    {
-        $result = 'something';
-
-        echo "Welcome to the console ParseDocumentsController actionIndex() method\n";
-
-        return $result;
-    }
-
-    /**
-     * Handle document-search/parse-documents/index-all console commands
+     * Index all assets in enabled volumes
      *
      */
     public function actionIndexAll()

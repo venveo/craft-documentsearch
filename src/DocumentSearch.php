@@ -59,15 +59,6 @@ class DocumentSearch extends Plugin
             'documentContent' => DocumentContentService::class
         ]);
 
-//        Event::on(
-//            UrlManager::class,
-//            UrlManager::EVENT_REGISTER_CP_URL_RULES,
-//            function (RegisterUrlRulesEvent $event) {
-//                $event->rules['cpActionTrigger1'] = 'document-search/document-search/do-something';
-//            }
-//        );
-
-
         Event::on(Asset::class, Asset::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->behaviors[] = AssetContentBehavior::class;
@@ -77,14 +68,6 @@ class DocumentSearch extends Plugin
         Event::on(Asset::class, Asset::EVENT_REGISTER_SEARCHABLE_ATTRIBUTES, function(RegisterElementSearchableAttributesEvent $e) {
             $e->attributes[] = 'contentKeywords';
         });
-
-        Event::on(
-            Utilities::class,
-            Utilities::EVENT_REGISTER_UTILITY_TYPES,
-            function(RegisterComponentTypesEvent $event) {
-                $event->types[] = DocumentSearchUtility::class;
-            }
-        );
     }
 
     /**
