@@ -1,5 +1,5 @@
 {
-    "name": "venveo/document-search",
+    "name": "venveo/craft-document-search",
     "description": "Extract the contents of text documents and add to Craft's search index",
     "type": "craft-plugin",
     "version": "1.0.0",
