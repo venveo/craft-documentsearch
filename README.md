@@ -1,6 +1,12 @@
 # Document Search plugin for Craft CMS 3.1
 Extracts keywords of PDF documents and adds them to Craft CMS's native search index
 
+## Document Search Usage
+
+Once installed and configured (see configuration section), PDF assets with text in them (does not work with images, such as scans) will be indexed automatically.
+
+Like other fields in Craft, you may tweak the search query to your liking by targeting the field named `contentKeywords`
+
 ## Requirements
 - Craft CMS 3.1.x
 - pdftotext executable
@@ -27,10 +33,6 @@ To install on Ubuntu or Debian, the precompiled binaries can be procured from ap
 To install on RedHat or CentOS, the precompiled binaries can be procured from yum:
 
 `yum install poppler-utils`
-## Document Search Overview
-
-This plugin allows users to automatically extract keywords from document assets and add
-them to Craft's search index.
 
 **Note:**
 If you're looking for a full-text document search solution, this isn't it. The purpose of this plugin is to boil down large documents to consumable sizes for a PHP-based web server.
