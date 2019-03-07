@@ -1,5 +1,5 @@
 {
-    "name": "venveo/craft-document-search",
+    "name": "venveo/craft-documentsearch",
     "description": "Extract the contents of text documents and add to Craft's search index",
     "type": "craft-plugin",
     "version": "1.0.0",
@@ -11,8 +11,8 @@
         "document search"
     ],
     "support": {
-        "docs": "https://github.com/venveo/document-search/blob/master/README.md",
-        "issues": "https://github.com/venveo/document-search/issues"
+        "docs": "https://github.com/venveo/craft-documentsearch/blob/master/README.md",
+        "issues": "https://github.com/venveo/craft-documentsearch/issues"
     },
     "license": "MIT",
     "authors": [
@@ -37,7 +37,7 @@
         "handle": "document-search",
         "hasCpSettings": true,
         "hasCpSection": false,
-        "changelogUrl": "https://raw.githubusercontent.com/venveo/document-search/master/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/venveo/craft-documentsearch/master/CHANGELOG.md",
         "components": {
             "documentSearch": "venveo\\documentsearch\\services\\DocumentSearch"
         },
