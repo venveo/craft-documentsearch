@@ -54,11 +54,4 @@ Keywords for existing assets are not automatically generated, but can be generat
 using the `./craft document-search/parse-documents/index-all` command.
 
 
-## Document Search Roadmap
-
-Some things to do, and ideas for potential features:
-
-* Release it
-* Additional file format support (.DWG)
-
 Brought to you by [Venveo](https://venveo.com)
