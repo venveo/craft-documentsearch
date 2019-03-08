@@ -20,7 +20,6 @@ use craft\base\Model;
 class Settings extends Model
 {
     public $pdfToTextExecutable = '/usr/local/bin/pdftotext';
-    public $maximumKeywords = 100;
     public $maximumDocumentSize = 1024 * 4;
     public $indexVolumes = [];
 
@@ -34,8 +33,7 @@ class Settings extends Model
     {
         return [
             ['pdfToTextExecutable', 'string'],
-            [['maximumKeywords', 'maximumDocumentSize'], 'integer'],
-//            ['indexVolumes', 'array'],
+            [['maximumDocumentSize'], 'integer', 'min' => 1, 'message' => 'Document size should be a positive number'],
         ];
     }
 }

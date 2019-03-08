@@ -22,49 +22,61 @@
         font-weight: bold;
     }
 </style>
-<div class="fields readable">
-    {{ forms.autosuggestField({
-      label: "Location of pdftotext executable on server"|t('document-search'),
-      id: 'pdfToTextExecutable',
-      name: 'pdfToTextExecutable',
-      required: true,
-      errors: (not binaries.pdftotext),
-      value: settings['pdfToTextExecutable'],
-      suggestEnvVars: true
-    }) }}
-
-    {% if not binaries.pdftotext %}
-      <div class="field">
-        <p class="warning">Could not locate required binary:
-          <code>pdftotext</code>
-        </p>
-      </div>
-    {% endif %}
-
-    <div class="field">
-        <div class="heading"><label>Indexed Volumes</label></div>
-      {% set volumes = craft.app.volumes.getPublicVolumes() %}
-        {{ forms.checkboxField({
-            label: 'All',
-            id: 'all-public',
-            class: 'checkbox-all',
-            name: '',
-            value: '*',
-            checked: (settings['indexVolumes']|length == volumes|length)
-        }) }}
-      {% for option in volumes %}
-          {{ forms.checkboxField({
-              label: option.name,
-              id: 'indexVolumes-'~option.id,
-              class: 'indexVolumes',
-              name: 'indexVolumes[]',
-              value: option.id,
-              checked: (option.id in settings['indexVolumes'])
-          }) }}
-      {% endfor %}
-    </div>
+<div class="field first">
+{{ forms.autosuggestField({
+  label: "Location of pdftotext executable on server"|t('document-search'),
+  id: 'pdfToTextExecutable',
+  name: 'pdfToTextExecutable',
+  required: true,
+  errors: (not binaries.pdftotext),
+  value: settings['pdfToTextExecutable'],
+  suggestEnvVars: true
+}) }}
 </div>
-<script>
+
+{% if not binaries.pdftotext %}
+  <div class="field">
+    <p class="warning">Could not locate required binary:
+      <code>pdftotext</code>
+    </p>
+  </div>
+{% endif %}
+
+<div class="field">
+    <div class="heading"><label>Indexed Volumes</label></div>
+  {% set volumes = craft.app.volumes.getPublicVolumes() %}
+    {{ forms.checkboxField({
+        label: 'All',
+        id: 'all-public',
+        class: 'checkbox-all',
+        name: '',
+        value: '*',
+        checked: (settings['indexVolumes']|length == volumes|length)
+    }) }}
+  {% for option in volumes %}
+      {{ forms.checkboxField({
+          label: option.name,
+          id: 'indexVolumes-'~option.id,
+          class: 'indexVolumes',
+          name: 'indexVolumes[]',
+          value: option.id,
+          checked: (option.id in settings['indexVolumes'])
+      }) }}
+  {% endfor %}
+</div>
+
+<div class="field">
+    {{ forms.textField({
+        label: "Maximum file size in kilobytes"|t('app'),
+        id: "maximumDocumentSize",
+        name: "maximumDocumentSize",
+        size: 8,
+        value: settings['maximumDocumentSize'],
+        errors: (settings is defined ? settings.getErrors('maximumDocumentSize') : null),
+    }) }}
+</div>
+
+{% js %}
     var selectAll = document.getElementById('settings-all-public')
     var indexVolumes = document.querySelectorAll('.indexVolumes')
     var updateAllCheckbox = function (e) {
@@ -86,4 +98,4 @@
         })
     })
     updateAllCheckbox(selectAll)
-</script>
+{% endjs %}

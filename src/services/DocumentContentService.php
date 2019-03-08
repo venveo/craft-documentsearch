@@ -43,7 +43,8 @@ class DocumentContentService extends Component
             return null;
         }
 
-        if ($asset->size > $settings->maximumDocumentSize) {
+        // make sure the asset size doesn't exceed our maximum
+        if ($asset->size > $settings->maximumDocumentSize * 1024) {
             Craft::info('Skipping asset ('.$asset->id.') because it exceeds maximumDocumentSize ('.$settings->maximumDocumentSize.')', __METHOD__);
             return null;
         }
@@ -59,21 +60,16 @@ class DocumentContentService extends Component
             $language = $asset->getSite()->language ?: 'en';
             $languageParts = explode('-', $language);
             $languageShort = strtolower(array_shift($languageParts));
-            try {
-                $scoredKeywords = Plugin::$plugin->rake->getKeywordScores($text, $languageShort);
-            } catch (StopWordsLanguageNotExists $e) {
-                // Just do it in english
-                try {
-                    $scoredKeywords = Plugin::$plugin->rake->getKeywordScores($text);
-                    Craft::warning('Rake could not locate asset locale: '.$e->getMessage(), __METHOD__);
-                } catch (StopWordsLanguageNotExists $e) {
-                    Craft::error('Rake could not locate asset locale: '.$e->getMessage(), __METHOD__);
-                    return null;
-                }
+            $scoredKeywords = Plugin::$plugin->rake->get($text, $languageShort);
+            $count = count($scoredKeywords);
+
+            // If there are more than 100 keywords, let's just get the first third
+            if ($count > 100) {
+                $scoredKeywords = array_slice($scoredKeywords, 0, floor($count / 3));
             }
 
             // Assemble the keywords into a string
-            $results = implode(' ', array_slice(array_keys($scoredKeywords), 0, $settings->maximumKeywords - 1));
+            $results = implode(' ', array_keys($scoredKeywords));
             Craft::info('Extracted '.count($scoredKeywords).' keywords from: '.$asset->id.' in '.$languageShort, __METHOD__);
         } else {
             Craft::info('No text found in '.$asset->id, __METHOD__);

@@ -40,12 +40,12 @@ class RakeService extends Component
     protected $contentFilters = [];
 
 
-    public function get($content): array
+    public function get($content, $language = 'en'): array
     {
         foreach ($this->getContentFilters() as $contentFilter) {
             $content = $contentFilter->transform($content);
         }
-        return $this->getKeywordScores($content);
+        return $this->getKeywordScores($content, $language);
     }
 
     /**
