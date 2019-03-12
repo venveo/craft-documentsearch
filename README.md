@@ -2,7 +2,7 @@
 Extracts keywords and phrases from PDF documents and adds them to Craft CMS's native search index.
 
 **NOTE:** 
-Please try before you buy and make sure this plugin suits your needs. You may not get the results you're expecting!
+Please try before you buy and make sure this plugin suits your needs. You may not get the results you're expecting! Certain document types do not necessarily lend themselves well to this process.
 
 **NOTE:**
 If you're looking for a full-text document search solution, this isn't it. The purpose of this plugin is to boil down large documents to consumable sizes for a PHP-based web server.
