@@ -44,7 +44,7 @@ class DocumentContentService extends Component
         }
 
         // make sure the asset size doesn't exceed our maximum
-        if ($asset->size > $settings->maximumDocumentSize * 1024 *10) {
+        if ($asset->size > $settings->maximumDocumentSize * 1024) {
             Craft::info('Skipping asset ('.$asset->id.') because it exceeds maximumDocumentSize ('.$settings->maximumDocumentSize.')', __METHOD__);
             return null;
         }
