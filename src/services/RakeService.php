@@ -11,6 +11,7 @@
 namespace venveo\documentsearch\services;
 
 use craft\base\Component;
+use TextAnalysis\Analysis\FreqDist;
 use TextAnalysis\Analysis\Keywords\Rake;
 use TextAnalysis\Documents\TokensDocument;
 use TextAnalysis\Filters;
@@ -40,12 +41,12 @@ class RakeService extends Component
     protected $contentFilters = [];
 
 
-    public function get($content, $language = 'en'): array
+    public function get($content, $ngramSize = self::NGRAM_SIZE, $language = 'en'): array
     {
         foreach ($this->getContentFilters() as $contentFilter) {
             $content = $contentFilter->transform($content);
         }
-        return $this->getKeywordScores($content, $language);
+        return $this->getKeywordScores($content, $ngramSize, $language);
     }
 
     /**
@@ -102,11 +103,12 @@ class RakeService extends Component
     /**
      *
      * @param string $content
+     * @param int $ngramSize
      * @param string $language The language to use to lookup stop words
      * @return array
      * @throws StopWordsLanguageNotExists
      */
-    public function getKeywordScores($content, $language = 'en'): array
+    public function getKeywordScores($content, $ngramSize = self::NGRAM_SIZE, $language = 'en'): array
     {
         $tokens = (new WhitespaceTokenizer())->tokenize($content);
         $tokenDoc = new TokensDocument(array_map('strval', $tokens));
@@ -117,11 +119,14 @@ class RakeService extends Component
         }
 
         $size = count($tokenDoc->toArray());
-        if ($size < self::NGRAM_SIZE) {
+        if ($size < $ngramSize) {
             return [];
         }
 
-        $rake = new Rake($tokenDoc, self::NGRAM_SIZE);
+        $rake = new Rake($tokenDoc, $ngramSize);
+        if ($ngramSize === 1) {
+            return (new FreqDist($rake->getTokens()))->getKeyValuesByFrequency();
+        }
         return $rake->getKeywordScores();
     }
 }
