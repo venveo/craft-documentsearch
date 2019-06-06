@@ -68,7 +68,7 @@ See the installation section for notes on installing pdftotext.
 
 The search index will populate keywords extracted from assets when they are saved. 
 Keywords for existing assets are not automatically generated, but can be generated
-using the `./craft document-search/parse-documents/index-all` command.
+using the `./craft resave/assets` command included with Craft.
 
 
 Brought to you by [Venveo](https://venveo.com)
