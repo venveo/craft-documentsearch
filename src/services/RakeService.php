@@ -124,7 +124,9 @@ class RakeService extends Component
         }
 
         $rake = new Rake($tokenDoc, $ngramSize);
-        if ($ngramSize === 1) {
+        if ($ngramSize === 1 && count($rake->getTokens()) === 0) {
+            return []; // prevent empty token array error
+        } elseif ($ngramSize === 1) {
             return (new FreqDist($rake->getTokens()))->getKeyValuesByFrequency();
         }
         return $rake->getKeywordScores();
