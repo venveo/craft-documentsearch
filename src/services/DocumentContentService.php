@@ -14,10 +14,12 @@ use Craft;
 use craft\base\Component;
 use craft\base\Volume;
 use craft\elements\Asset;
+use craft\helpers\Db;
 use Spatie\PdfToText\Pdf;
 use venveo\documentsearch\DocumentSearch as Plugin;
 use venveo\documentsearch\models\Settings;
 use voku\helper\StopWordsLanguageNotExists;
+use yii\db\Schema;
 
 /**
  * @author    Venveo
@@ -60,6 +62,18 @@ class DocumentContentService extends Component
             $language = $asset->getSite()->language ?: 'en';
             $languageParts = explode('-', $language);
             $languageShort = strtolower(array_shift($languageParts));
+
+            // If we can - let's just store the entire text
+            $db = Craft::$app->getDb();
+            if ($isPgsql = $db->getIsPgsql()) {
+                $maxSize = Craft::$app->search->maxPostgresKeywordLength;
+            } else {
+                $maxSize = Db::getTextualColumnStorageCapacity(Schema::TYPE_TEXT);
+            }
+            if (mb_strlen($text) < $maxSize) {
+                return $text;
+            }
+
             $scoredKeywords_1 = Plugin::$plugin->rake->get($text, 1, $languageShort);
             $scoredKeywords_2 = Plugin::$plugin->rake->get($text, 2, $languageShort);
             $scoredKeywords_3 = Plugin::$plugin->rake->get($text, 3, $languageShort);
@@ -73,9 +87,6 @@ class DocumentContentService extends Component
             } else {
                 $scoredKeywords = $scoredKeywords_1 + $scoredKeywords_2 + $scoredKeywords_3;
             }
-
-//            print_r($scoredKeywords);
-//            die();
 
             // Assemble the keywords into a string
             $results = implode(' ', array_keys($scoredKeywords));

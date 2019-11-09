@@ -18,33 +18,35 @@
     .fields > .field .checkboxfield {
         margin: 0 0 20px 0;
     }
+
     #settings-all-public-field label {
         font-weight: bold;
     }
 </style>
 <div class="field first">
-{{ forms.autosuggestField({
-  label: "Location of pdftotext executable on server"|t('document-search'),
-  id: 'pdfToTextExecutable',
-  name: 'pdfToTextExecutable',
-  required: true,
-  errors: (not binaries.pdftotext),
-  value: settings['pdfToTextExecutable'],
-  suggestEnvVars: true
-}) }}
+    {{ forms.autosuggestField({
+        label: "Location of pdftotext executable on server"|t('document-search'),
+        id: 'pdfToTextExecutable',
+        first: true,
+        name: 'pdfToTextExecutable',
+        required: true,
+        errors: (not binaries.pdftotext),
+        value: settings['pdfToTextExecutable'],
+        suggestEnvVars: true
+    }) }}
 </div>
 
 {% if not binaries.pdftotext %}
-  <div class="field">
-    <p class="warning">Could not locate required binary:
-      <code>pdftotext</code>
-    </p>
-  </div>
+    <div class="field">
+        <p class="warning">Could not locate required binary:
+            <code>pdftotext</code>
+        </p>
+    </div>
 {% endif %}
 
 <div class="field">
     <div class="heading"><label>Indexed Volumes</label></div>
-  {% set volumes = craft.app.volumes.getPublicVolumes() %}
+    {% set volumes = craft.app.volumes.allVolumes %}
     {{ forms.checkboxField({
         label: 'All',
         id: 'all-public',
@@ -53,16 +55,16 @@
         value: '*',
         checked: (settings['indexVolumes']|length == volumes|length)
     }) }}
-  {% for option in volumes %}
-      {{ forms.checkboxField({
-          label: option.name,
-          id: 'indexVolumes-'~option.id,
-          class: 'indexVolumes',
-          name: 'indexVolumes[]',
-          value: option.id,
-          checked: (option.id in settings['indexVolumes'])
-      }) }}
-  {% endfor %}
+    {% for option in volumes %}
+        {{ forms.checkboxField({
+            label: option.name,
+            id: 'indexVolumes-'~option.id,
+            class: 'indexVolumes',
+            name: 'indexVolumes[]',
+            value: option.id,
+            checked: (option.id in settings['indexVolumes'])
+        }) }}
+    {% endfor %}
 </div>
 
 <div class="field">
@@ -77,25 +79,25 @@
 </div>
 
 {% js %}
-    var selectAll = document.getElementById('settings-all-public')
-    var indexVolumes = document.querySelectorAll('.indexVolumes')
-    var updateAllCheckbox = function (e) {
-        if ((e && e.checked === true) || this.checked === true) {
-            Object.keys(indexVolumes).forEach(function (k) {
-                indexVolumes[k].checked = true
-                indexVolumes[k].disabled = true
-            })
-        } else {
-            Object.keys(indexVolumes).forEach(function (k) {
-                indexVolumes[k].disabled = false
-            })
-        }
-    }
-    selectAll.addEventListener('click', updateAllCheckbox)
-    document.body.addEventListener('submit', function (e) {
+var selectAll = document.getElementById('settings-all-public')
+var indexVolumes = document.querySelectorAll('.indexVolumes')
+var updateAllCheckbox = function (e) {
+    if ((e && e.checked === true) || this.checked === true) {
+        Object.keys(indexVolumes).forEach(function (k) {
+            indexVolumes[k].checked = true
+            indexVolumes[k].disabled = true
+        })
+    } else {
         Object.keys(indexVolumes).forEach(function (k) {
             indexVolumes[k].disabled = false
         })
+    }
+}
+selectAll.addEventListener('click', updateAllCheckbox)
+document.body.addEventListener('submit', function (e) {
+    Object.keys(indexVolumes).forEach(function (k) {
+        indexVolumes[k].disabled = false
     })
-    updateAllCheckbox(selectAll)
+})
+updateAllCheckbox(selectAll)
 {% endjs %}
