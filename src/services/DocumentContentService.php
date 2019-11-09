@@ -60,10 +60,19 @@ class DocumentContentService extends Component
             $language = $asset->getSite()->language ?: 'en';
             $languageParts = explode('-', $language);
             $languageShort = strtolower(array_shift($languageParts));
-            $scoredKeywords = Plugin::$plugin->rake->get($text, $languageShort);
+            $scoredKeywords_1 = Plugin::$plugin->rake->get($text, 1, $languageShort);
+            $scoredKeywords_2 = Plugin::$plugin->rake->get($text, 2, $languageShort);
+            $scoredKeywords_3 = Plugin::$plugin->rake->get($text, 3, $languageShort);
+            $count = count($scoredKeywords_1) + count($scoredKeywords_2) + count($scoredKeywords_3);
 
-            // We used to check the length of keywords here - but it turns out Craft will do this for us, but more
-            // intelligently based on database driver.
+            // If there are more than 100 keywords, let's just get the first third
+            if ($count > 100) {
+                $scoredKeywords = array_slice($scoredKeywords_1, 0, 30) +
+                    array_slice($scoredKeywords_2, 0, 30) +
+                    array_slice($scoredKeywords_3, 0, 30);
+            } else {
+                $scoredKeywords = $scoredKeywords_1 + $scoredKeywords_2 + $scoredKeywords_3;
+            }
 
             // Assemble the keywords into a string
             $results = implode(' ', array_keys($scoredKeywords));
