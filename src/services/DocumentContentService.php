@@ -61,12 +61,9 @@ class DocumentContentService extends Component
             $languageParts = explode('-', $language);
             $languageShort = strtolower(array_shift($languageParts));
             $scoredKeywords = Plugin::$plugin->rake->get($text, $languageShort);
-            $count = count($scoredKeywords);
 
-            // If there are more than 100 keywords, let's just get the first third
-            if ($count > 100) {
-                $scoredKeywords = array_slice($scoredKeywords, 0, floor($count / 3));
-            }
+            // We used to check the length of keywords here - but it turns out Craft will do this for us, but more
+            // intelligently based on database driver.
 
             // Assemble the keywords into a string
             $results = implode(' ', array_keys($scoredKeywords));
