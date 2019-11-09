@@ -44,7 +44,7 @@
 
 <div class="field">
     <div class="heading"><label>Indexed Volumes</label></div>
-  {% set volumes = craft.app.volumes.getPublicVolumes() %}
+  {% set volumes = craft.app.volumes.allVolumes %}
     {{ forms.checkboxField({
         label: 'All',
         id: 'all-public',

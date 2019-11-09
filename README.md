@@ -1,15 +1,16 @@
 # Document Search plugin for Craft CMS 3.1
-Extracts keywords of PDF documents and adds them to Craft CMS's native search index
+Extracts keywords of PDF documents and adds them to Craft CMS's native search index.
 
 ## Document Search Usage
 
 Once installed and configured (see configuration section), PDF assets with text in them (does not work with images, such as scans) will be indexed automatically.
 
-Like other fields in Craft, you may tweak the search query to your liking by targeting the field named `contentKeywords`
+Like other fields in Craft, you may tweak the search query to your liking by targeting the field named `contentkeywords`
 
 ## Requirements
 - Craft CMS 3.1.x
 - pdftotext executable
+- Ample memory
 
 ## Installation
 ### Plugin

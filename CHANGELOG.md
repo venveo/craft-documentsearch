@@ -1,8 +1,11 @@
 # Document Search Changelog
 
-## 1.0.1 - 2019-11-09
+## Unreleased
 ### Changed
 - Loosen version constraints on dependencies
+
+### Fixed
+- Fix bug where non-public volumes were not appearing in settings
 
 ## 1.0.0 - 2019-02-26
 ### Added
