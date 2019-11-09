@@ -1,6 +1,6 @@
 # Document Search Changelog
 
-## Unreleased
+## 1.0.1 - 2019-11-09
 ### Changed
 - Loosen version constraints on dependencies
 - The plugin will no longer limit the key-phrase count to 100, but let Craft determine the appropriate length
