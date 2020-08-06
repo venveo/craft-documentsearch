@@ -23,28 +23,8 @@
         font-weight: bold;
     }
 </style>
+
 <div class="field first">
-    {{ forms.autosuggestField({
-        label: "Location of pdftotext executable on server"|t('document-search'),
-        id: 'pdfToTextExecutable',
-        first: true,
-        name: 'pdfToTextExecutable',
-        required: true,
-        errors: (not binaries.pdftotext),
-        value: settings['pdfToTextExecutable'],
-        suggestEnvVars: true
-    }) }}
-</div>
-
-{% if not binaries.pdftotext %}
-    <div class="field">
-        <p class="warning">Could not locate required binary:
-            <code>pdftotext</code>
-        </p>
-    </div>
-{% endif %}
-
-<div class="field">
     <div class="heading"><label>Indexed Volumes</label></div>
     {% set volumes = craft.app.volumes.allVolumes %}
     {{ forms.checkboxField({
@@ -77,6 +57,14 @@
         errors: (settings is defined ? settings.getErrors('maximumDocumentSize') : null),
     }) }}
 </div>
+
+<hr>
+
+<small>
+    <div id="plugin-info">
+        Craft Document Search 1.0.3
+    </div>
+</small>
 
 {% js %}
 var selectAll = document.getElementById('settings-all-public')

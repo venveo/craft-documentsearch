@@ -1,5 +1,12 @@
 # Document Search Changelog
 
+## 1.0.3 - 2020-08-06
+### Changed
+- Adds support for extracting text from additional document types including .doc, .docx, .txt, .xlsx, .pptx
+- Change the pdf extract to use smalot/pdfparser instead of pdftotext binary.
+- Removed references to pdfToTextExecutable from settings.
+- Updated LICENSE.txt to adhere to the MIT license specified in the composer.json file.
+
 ## 1.0.2 - 2019-11-09
 ### Changed
 - Loosen version constraints on dependencies

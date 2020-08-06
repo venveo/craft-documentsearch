@@ -23,7 +23,6 @@
  */
 
 return [
-    'pdfToTextExecutable' => '',
     'maximumKeywords' => null,
     'maximumDocumentSize' => null
 ];

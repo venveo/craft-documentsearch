@@ -15,7 +15,7 @@ use craft\base\Component;
 use craft\base\Volume;
 use craft\elements\Asset;
 use craft\helpers\Db;
-use Spatie\PdfToText\Pdf;
+use phpDocumentor\Reflection\Types\String_;
 use venveo\documentsearch\DocumentSearch as Plugin;
 use venveo\documentsearch\models\Settings;
 use voku\helper\StopWordsLanguageNotExists;
@@ -51,9 +51,38 @@ class DocumentContentService extends Component
             return null;
         }
 
-        // We're only dealing with PDFs right now
-        if ($asset->kind == Asset::KIND_PDF) {
-            $text = $this->extractContentFromPDF($asset->getCopyOfFile());
+        /*
+         * Add support for common document types. Update pdf support to use a native php solution.
+         */
+        switch($asset->kind){
+            case Asset::KIND_PDF:
+                $filepath = $asset->getCopyOfFile();
+                Craft::info('Asset(pdf) path is: '. $filepath,__METHOD__);
+                $text = $this->extractContentFromPDF($filepath);
+                break;
+            case Asset::KIND_EXCEL:
+                $filepath = $asset->getCopyOfFile();
+                Craft::info('Asset(excel) path is: '. $filepath,__METHOD__);
+                $text = $this->extractContentFromExcel($filepath);
+                break;
+            case Asset::KIND_WORD:
+                $filepath = $asset->getCopyOfFile();
+                Craft::info('Asset(word) path is: '. $filepath,__METHOD__);
+                $text = $this->extractContentFromWord($filepath);
+                break;
+            case Asset::KIND_POWERPOINT:
+                $filepath = $asset->getCopyOfFile();
+                Craft::info('Asset(presentation) path is: '. $filepath,__METHOD__);
+                $text = $this->extractContentFromPresentation($filepath);
+                break;
+            case Asset::KIND_TEXT:
+                $filepath = $asset->getCopyOfFile();
+                Craft::info('Asset(text) path is: '. $filepath,__METHOD__);
+                $text = file_get_contents($filepath,false);
+                break;
+            default:
+                //no op;
+                Craft::warning('Document search cannot index ' . $asset->kind . '. Path is:'. $filepath,__METHOD__);
         }
 
         // If we have text, let's extract the keywords from it
@@ -98,18 +127,218 @@ class DocumentContentService extends Component
         return $results;
     }
 
-
     /**
-     * Gets the textual content from a PDF
-     *
+     * Extract textual content from Asset::KIND_PDF
+     * 
      * @param string $filepath
      * @return string
      */
     public function extractContentFromPDF($filepath): string
     {
-        Craft::info('Extracting PDF content from: '.$filepath, __METHOD__);
-        // change directory to guarantee writable directory
-        chdir(Craft::$app->path->getAssetsPath().DIRECTORY_SEPARATOR);
-        return Pdf::getText($filepath, Plugin::$plugin->getSettings()->pdfToTextExecutable);
+        Craft::info('Extracting text content from PDF : '.$filepath, __METHOD__);
+        $parser   = new \Smalot\PdfParser\Parser();
+        $pdf      = $parser->parseFile( $filepath );
+        return $pdf->getText();
+    }
+
+    /**
+     * Detect if a file is a zip file.
+     * @param $filepath
+     * @return bool
+     */
+    public function isZipFile($filepath){
+        $fh = fopen($filepath,'r');
+        $bytes = fread($fh,4);
+        fclose($fh);
+        return ('504b0304' === bin2hex($bytes));
+    }
+
+    /**
+     * Quick method for extracting text from a word 2007+ document.
+     * @param $filepath
+     * @return bool|string
+     * //TOOD Conver to ZipArchive object.
+     */
+    public function extractContentFromDocx($filepath ): string
+    {
+        $response = '';
+
+        $zip = zip_open($filepath);
+
+        if (!$zip || is_numeric($zip)) return false;
+
+        while ($zip_entry = zip_read($zip)) {
+
+            if (zip_entry_open($zip, $zip_entry) == FALSE)
+                continue;
+
+            if (zip_entry_name($zip_entry) != 'word/document.xml')
+                continue;
+
+            $response .= zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
+
+            zip_entry_close($zip_entry);
+        }
+
+        zip_close($zip);
+
+        $response = str_replace('</w:r></w:p></w:tc><w:tc>', ' ', $response);
+        $response = str_replace('</w:r></w:p>', "\r\n", $response);
+        $response = strip_tags($response);
+
+        if(empty($response)){
+            $response = '';
+        }
+
+        return $response;
+    }
+
+    /**
+     * Quick method for extracting text from a word 97 document.
+     * @param $filepath
+     * @return string
+     */
+    protected function extractContentFromDoc($filepath): string
+    {
+        $fileHandle = fopen($filepath, 'r');
+        $line       = @fread($fileHandle, filesize($filepath));
+        $lines      = explode(chr(0x0D), $line);
+        $response   = '';
+
+        foreach ($lines as $current_line) {
+
+            $pos = strpos($current_line, chr(0x00));
+
+            if ( ($pos !== FALSE) || (strlen($current_line) == 0) ) {
+                //no op
+            } else {
+                $response .= $current_line . ' ';
+            }
+        }
+
+        $response = preg_replace('/[^a-zA-Z0-9\s,.\-\n\r\t@\/_()]/', '', $response);
+
+        $nl = stripos($response,"\n");
+        if($nl){
+            $response = substr($response,0,$nl);
+        }
+        return $response;
+    }
+
+    /**
+     * Extract text for any type included in Asset::KIND_WORD.
+     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 442
+     * 
+     * @param $filepath
+     * @return string
+     */
+    public function extractContentFromWord($filepath): string
+    {
+        Craft::info('Extracting text content from Word doc : '.$filepath, __METHOD__);
+
+        if($this->isZipFile($filepath)){
+            $text = $this->extractContentFromDocx($filepath);
+        }else{
+            $text = $this->extractContentFromDoc($filepath);
+        }
+        return $text;
+    }
+
+    /**
+     * Extract text from a Excel 2007 file (.xlsx)
+     * @param $filepath
+     * @return string
+     */
+    public function extractContentFromXlsx( $filepath ): string
+    {
+        $xml_filename = 'xl/sharedStrings.xml'; //content file name
+        $zip_handle   = new \ZipArchive();
+        $response     = '';
+
+        if (true === $zip_handle->open($filepath)) {
+
+            if (($xml_index = $zip_handle->locateName($xml_filename)) !== false) {
+
+                $doc = new \DOMDocument();
+
+                $xml_data   = $zip_handle->getFromIndex($xml_index);
+                $doc->loadXML($xml_data, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
+                $response   = strip_tags($doc->saveXML());
+            }
+            $zip_handle->close();
+        }
+        return $response;
+    }
+
+    /**
+     * Extract text for any type included in Asset::KIND_EXCEL.
+     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 442
+     * 
+     * @param $filepath
+     * @return string
+     */
+    public function extractContentFromExcel($filepath): string
+    {
+        Craft::info('Extracting text content from Excel doc : '.$filepath, __METHOD__);
+
+        if($this->isZipFile($filepath)){
+            $text = $this->extractContentFromXlsx($filepath);
+        }else{
+            //TODO: Add support for excel 97 (.xls) documents.
+            Craft::info('Cannot extract text from ' . $filepath,__METHOD__);
+            $text = '';
+        }
+        return $text;
+    }
+
+    /**
+     * Extract content from a powerpoint pptx file.
+     * @param $filepath
+     * @return string
+     */
+    public function extractContentFromPptx($filepath): string
+    {
+        $zip_handle = new \ZipArchive();
+        $response   = '';
+
+        if (true === $zip_handle->open($filepath)) {
+
+            $slide_number = 1; //loop through slide files
+            $doc = new \DOMDocument();
+
+            while (($xml_index = $zip_handle->locateName('ppt/slides/slide' . $slide_number . '.xml')) !== false) {
+
+                $xml_data   = $zip_handle->getFromIndex($xml_index);
+
+                $doc->loadXML($xml_data, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
+                $response  .= strip_tags($doc->saveXML());
+
+                $slide_number++;
+
+            }
+            $zip_handle->close();
+        }
+        return $response;
+    }
+
+    /**
+     * Extract text for any type included in Asset::KIND_POWERPOINT.
+     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 525
+     * 
+     * @param $filepath
+     * @return string
+     */
+    public function extractContentFromPresentation($filepath): string
+    {
+        Craft::info('Extracting text content from Presentation doc : '.$filepath, __METHOD__);
+
+        if($this->isZipFile($filepath)){
+            $text = $this->extractContentFromPptx($filepath);
+        }else{
+            //TODO: Add support for powerpoint 97 (.ppt) documents
+            Craft::info('Cannot extract text from ' . $filepath,__METHOD__);
+            $text = '';
+        }
+        return $text;
     }
 }
