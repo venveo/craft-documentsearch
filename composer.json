@@ -25,6 +25,7 @@
         "php": ">=7.2.0",
         "ext-zip": "*",
         "ext-dom": "*",
+        "ext-libxml": "*",
         "craftcms/cms": "^3.1.0",
         "spatie/pdf-to-text": "^1.1",
         "yooper/php-text-analysis": "^1.4",

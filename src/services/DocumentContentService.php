@@ -54,35 +54,35 @@ class DocumentContentService extends Component
         /*
          * Add support for common document types. Update pdf support to use a native php solution.
          */
+        $extractMethod = '';
         switch($asset->kind){
             case Asset::KIND_PDF:
-                $filepath = $asset->getCopyOfFile();
-                Craft::info('Asset(pdf) path is: '. $filepath,__METHOD__);
-                $text = $this->extractContentFromPDF($filepath);
+                $extractMethod = 'extractContentFromPDF';
                 break;
             case Asset::KIND_EXCEL:
-                $filepath = $asset->getCopyOfFile();
-                Craft::info('Asset(excel) path is: '. $filepath,__METHOD__);
-                $text = $this->extractContentFromExcel($filepath);
+                $extractMethod = 'extractContentFromExcel';
                 break;
             case Asset::KIND_WORD:
-                $filepath = $asset->getCopyOfFile();
-                Craft::info('Asset(word) path is: '. $filepath,__METHOD__);
-                $text = $this->extractContentFromWord($filepath);
+                $extractMethod = 'extractContentFromWord';
                 break;
             case Asset::KIND_POWERPOINT:
-                $filepath = $asset->getCopyOfFile();
-                Craft::info('Asset(presentation) path is: '. $filepath,__METHOD__);
-                $text = $this->extractContentFromPresentation($filepath);
+                $extractMethod = 'extractContentFromPresentation';
                 break;
             case Asset::KIND_TEXT:
-                $filepath = $asset->getCopyOfFile();
-                Craft::info('Asset(text) path is: '. $filepath,__METHOD__);
-                $text = file_get_contents($filepath,false);
+                $extractMethod = 'extractContentFromText';
                 break;
             default:
-                //no op;
-                Craft::warning('Document search cannot index ' . $asset->kind . '. : '. $asset->getFilename(true) ,__METHOD__);
+                //No op;
+                Craft::info('Document search cannot index ' . $asset->kind . '. : '. $asset->getFilename(true) ,__METHOD__);
+        }
+
+        if(!empty($extractMethod)){
+            $filepath = $asset->getCopyOfFile();
+
+            if($this->hasMethod($extractMethod)) {
+                Craft::info("Doing $extractMethod. File path is $filepath",__METHOD__);
+                $text = $this->$extractMethod($filepath);
+            }
         }
 
         // If we have text, let's extract the keywords from it
@@ -336,6 +336,25 @@ class DocumentContentService extends Component
         }else{
             //TODO: Add support for powerpoint 97 (.ppt) documents
             Craft::info('Cannot extract text from ' . $filepath,__METHOD__);
+            $text = '';
+        }
+        return $text;
+    }
+
+    /**
+     * Extract text for any type included in Asset::KIND_TEXT.
+     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 525
+     *
+     * @param $filepath
+     * @return string
+     */
+    public function extractContentFromText($filepath): string
+    {
+        Craft::info('Extracting text content from Text : '.$filepath, __METHOD__);
+
+        $text = file_get_contents($filepath,false);
+
+        if(empty($text)){
             $text = '';
         }
         return $text;
