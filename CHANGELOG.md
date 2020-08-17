@@ -1,5 +1,9 @@
 # Document Search Changelog
 
+## 1.0.3 - 2020-08-11
+### Changed
+- Added support for MS Office Documents. (.doc, .docx, .xlsx, .pptx, .txt)
+
 ## 1.0.2 - 2019-11-09
 ### Changed
 - Loosen version constraints on dependencies
