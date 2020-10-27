@@ -1,5 +1,9 @@
 # Document Search Changelog
 
+## 1.0.3 - 2020-10-27
+### Fixed
+- Fix environment variable for pdftotext path not working (#5)
+
 ## 1.0.2 - 2019-11-09
 ### Changed
 - Loosen version constraints on dependencies

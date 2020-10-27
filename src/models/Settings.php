@@ -11,6 +11,7 @@
 namespace venveo\documentsearch\models;
 
 use craft\base\Model;
+use craft\behaviors\EnvAttributeParserBehavior;
 
 /**
  * @author    Venveo
@@ -23,8 +24,18 @@ class Settings extends Model
     public $maximumDocumentSize = 1024 * 4;
     public $indexVolumes = [];
 
-    // Public Methods
-    // =========================================================================
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        $behaviors['parser'] = [
+            'class' => EnvAttributeParserBehavior::class,
+            'attributes' => [
+                'pdfToTextExecutable'
+            ],
+        ];
+        return $behaviors;
+    }
 
     /**
      * @inheritdoc

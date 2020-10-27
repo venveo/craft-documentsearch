@@ -110,6 +110,6 @@ class DocumentContentService extends Component
         Craft::info('Extracting PDF content from: '.$filepath, __METHOD__);
         // change directory to guarantee writable directory
         chdir(Craft::$app->path->getAssetsPath().DIRECTORY_SEPARATOR);
-        return Pdf::getText($filepath, Plugin::$plugin->getSettings()->pdfToTextExecutable);
+        return Pdf::getText($filepath, Craft::parseEnv(Plugin::$plugin->getSettings()->pdfToTextExecutable));
     }
 }

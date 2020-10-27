@@ -85,7 +85,7 @@ class DocumentSearch extends Plugin
             [
                 'settings' => $this->getSettings(),
                 'binaries' => [
-                    'pdftotext' => is_file($this->getSettings()->pdfToTextExecutable)
+                    'pdftotext' => is_file(Craft::parseEnv($this->getSettings()->pdfToTextExecutable))
                 ]
             ]
         );
