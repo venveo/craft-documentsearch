@@ -1,5 +1,9 @@
 # Document Search Changelog
 
+## Unreleased
+### Changed
+- Added support for MS Office Documents. (.doc, .docx, .xlsx, .pptx, .txt)
+
 ## 1.0.3 - 2020-10-27
 ### Fixed
 - Fix environment variable for pdftotext path not working (#5)
