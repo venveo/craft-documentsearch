@@ -45,25 +45,26 @@
     <ul><li>
         {{ forms.checkbox({
             label: 'All',
-            id: 'all-public',
-            class: 'checkbox-all',
-            name: '',
-            value: '*',
-            checked: (settings['indexVolumes']|length == volumes|length)
+            name: 'indexAllVolumes',
+            value: '1',
+            checked: settings.indexAllVolumes,
+            reverseToggle: '#volume-list'
         }) }}
         </li>
+        <div id="volume-list">
     {% for option in volumes %}
         <li>
         {{ forms.checkbox({
-            label: option.name,
+            label: option.name ~ ' (' ~ option.handle ~ ')',
             id: 'indexVolumes-'~option.id,
             class: 'indexVolumes',
             name: 'indexVolumes[]',
-            value: option.id,
-            checked: (option.id in settings['indexVolumes'])
+            value: option.uid,
+            checked: (option.uid in settings['indexVolumes'])
         }) }}
         </li>
     {% endfor %}
+        </div>
     </ul>
 </div>
 
