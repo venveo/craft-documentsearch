@@ -12,13 +12,8 @@
  * @since     1.0.0
  */
 #}
-
 {% import "_includes/forms" as forms %}
 <style>
-    .fields > .field .checkboxfield {
-        margin: 0 0 20px 0;
-    }
-
     #settings-all-public-field label {
         font-weight: bold;
     }
@@ -47,16 +42,19 @@
 <div class="field">
     <div class="heading"><label>Indexed Volumes</label></div>
     {% set volumes = craft.app.volumes.allVolumes %}
-    {{ forms.checkboxField({
-        label: 'All',
-        id: 'all-public',
-        class: 'checkbox-all',
-        name: '',
-        value: '*',
-        checked: (settings['indexVolumes']|length == volumes|length)
-    }) }}
+    <ul><li>
+        {{ forms.checkbox({
+            label: 'All',
+            id: 'all-public',
+            class: 'checkbox-all',
+            name: '',
+            value: '*',
+            checked: (settings['indexVolumes']|length == volumes|length)
+        }) }}
+        </li>
     {% for option in volumes %}
-        {{ forms.checkboxField({
+        <li>
+        {{ forms.checkbox({
             label: option.name,
             id: 'indexVolumes-'~option.id,
             class: 'indexVolumes',
@@ -64,7 +62,9 @@
             value: option.id,
             checked: (option.id in settings['indexVolumes'])
         }) }}
+        </li>
     {% endfor %}
+    </ul>
 </div>
 
 <div class="field">
