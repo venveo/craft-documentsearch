@@ -14,11 +14,11 @@ use Craft;
 use craft\base\Component;
 use craft\base\Volume;
 use craft\elements\Asset;
+use craft\helpers\App;
 use craft\helpers\Db;
 use Spatie\PdfToText\Pdf;
 use venveo\documentsearch\DocumentSearch as Plugin;
 use venveo\documentsearch\models\Settings;
-use voku\helper\StopWordsLanguageNotExists;
 use yii\db\Schema;
 
 /**
@@ -36,7 +36,7 @@ class DocumentContentService extends Component
     public function getAssetContentKeywords(Asset $asset): ?string
     {
         /** @var Settings $settings */
-        $settings = Plugin::$plugin->getSettings();
+        $settings = Plugin::getInstance()->getSettings();
 
         // check to make sure the volume is allowed to be indexed
         /** @var Volume $volume */
@@ -47,7 +47,8 @@ class DocumentContentService extends Component
 
         // make sure the asset size doesn't exceed our maximum
         if ($asset->size > $settings->maximumDocumentSize * 1024) {
-            Craft::info('Skipping asset ('.$asset->id.') because it exceeds maximumDocumentSize ('.$settings->maximumDocumentSize.')', __METHOD__);
+            Craft::info('Skipping asset (' . $asset->id . ') because it exceeds maximumDocumentSize (' . $settings->maximumDocumentSize . ')',
+                __METHOD__);
             return null;
         }
 
@@ -55,7 +56,7 @@ class DocumentContentService extends Component
          * Add support for common document types. Update pdf support to use a native php solution.
          */
         $extractMethod = '';
-        switch($asset->kind){
+        switch ($asset->kind) {
             case Asset::KIND_PDF:
                 $extractMethod = 'extractContentFromPDF';
                 break;
@@ -73,14 +74,15 @@ class DocumentContentService extends Component
                 break;
             default:
                 //No op;
-                Craft::info('Document search cannot index ' . $asset->kind . '. : '. $asset->getFilename(true) ,__METHOD__);
+                Craft::info('Document search cannot index ' . $asset->kind . '. : ' . $asset->getFilename(true),
+                    __METHOD__);
         }
 
-        if(!empty($extractMethod)){
+        if (!empty($extractMethod)) {
             $filepath = $asset->getCopyOfFile();
 
-            if($this->hasMethod($extractMethod)) {
-                Craft::info("Doing $extractMethod. File path is $filepath",__METHOD__);
+            if ($this->hasMethod($extractMethod)) {
+                Craft::info("Doing $extractMethod. File path is $filepath", __METHOD__);
                 $text = $this->$extractMethod($filepath);
             }
         }
@@ -103,9 +105,9 @@ class DocumentContentService extends Component
                 return $text;
             }
 
-            $scoredKeywords_1 = Plugin::$plugin->rake->get($text, 1, $languageShort);
-            $scoredKeywords_2 = Plugin::$plugin->rake->get($text, 2, $languageShort);
-            $scoredKeywords_3 = Plugin::$plugin->rake->get($text, 3, $languageShort);
+            $scoredKeywords_1 = Plugin::getInstance()->rake->get($text, 1, $languageShort);
+            $scoredKeywords_2 = Plugin::getInstance()->rake->get($text, 2, $languageShort);
+            $scoredKeywords_3 = Plugin::getInstance()->rake->get($text, 3, $languageShort);
             $count = count($scoredKeywords_1) + count($scoredKeywords_2) + count($scoredKeywords_3);
 
             // If there are more than 100 keywords, let's just get the first third
@@ -119,9 +121,10 @@ class DocumentContentService extends Component
 
             // Assemble the keywords into a string
             $results = implode(' ', array_keys($scoredKeywords));
-            Craft::info('Extracted '.count($scoredKeywords).' keywords from: '.$asset->id.' in '.$languageShort, __METHOD__);
+            Craft::info('Extracted ' . count($scoredKeywords) . ' keywords from: ' . $asset->id . ' in ' . $languageShort,
+                __METHOD__);
         } else {
-            Craft::info('No text found in '.$asset->id, __METHOD__);
+            Craft::info('No text found in ' . $asset->id, __METHOD__);
             return null;
         }
         return $results;
@@ -136,10 +139,10 @@ class DocumentContentService extends Component
      */
     public function extractContentFromPDF($filepath): string
     {
-        Craft::info('Extracting PDF content from: '.$filepath, __METHOD__);
+        Craft::info('Extracting PDF content from: ' . $filepath, __METHOD__);
         // change directory to guarantee writable directory
-        chdir(Craft::$app->path->getAssetsPath().DIRECTORY_SEPARATOR);
-        return Pdf::getText($filepath, Craft::parseEnv(Plugin::$plugin->getSettings()->pdfToTextExecutable));
+        chdir(Craft::$app->path->getAssetsPath() . DIRECTORY_SEPARATOR);
+        return Pdf::getText($filepath, App::parseEnv(Plugin::getInstance()->getSettings()->pdfToTextExecutable));
     }
 
     /**
@@ -147,9 +150,10 @@ class DocumentContentService extends Component
      * @param $filepath
      * @return bool
      */
-    public function isZipFile($filepath){
-        $fh = fopen($filepath,'r');
-        $bytes = fread($fh,4);
+    public function isZipFile($filepath)
+    {
+        $fh = fopen($filepath, 'r');
+        $bytes = fread($fh, 4);
         fclose($fh);
         //according to zip file spec, all zip files start with the same 4 bytes.
         return ('504b0304' === bin2hex($bytes));
@@ -160,16 +164,16 @@ class DocumentContentService extends Component
      * @param $filepath
      * @return bool|string
      */
-    protected function extractContentFromDocx($filepath ): string
+    protected function extractContentFromDocx($filepath): string
     {
         $response = '';
         $xml_filename = 'word/document.xml';
-        $zip  = new \ZipArchive();
+        $zip = new \ZipArchive();
 
-        if (true === $zip->open($filepath)){
+        if (true === $zip->open($filepath)) {
             $xml_index = $zip->locateName($xml_filename);
             if ($xml_index !== false) {
-                $xml_data   = $zip->getFromIndex($xml_index);
+                $xml_data = $zip->getFromIndex($xml_index);
                 //process data to retain line breaks between sections of text and remove all other tags.
                 $response = str_replace('</w:r></w:p></w:tc><w:tc>', ' ', $xml_data);
                 $response = str_replace('</w:r></w:p>', "\r\n", $response);
@@ -178,7 +182,7 @@ class DocumentContentService extends Component
             $zip->close();
         }
 
-        if(empty($response)){
+        if (empty($response)) {
             $response = '';
         }
 
@@ -197,16 +201,16 @@ class DocumentContentService extends Component
     protected function extractContentFromDoc($filepath): string
     {
         $fileHandle = fopen($filepath, 'r');
-        $line       = @fread($fileHandle, filesize($filepath));
+        $line = @fread($fileHandle, filesize($filepath));
         //Break document apart using paragraph markers.
-        $lines      = explode(chr(0x0D), $line);
-        $response   = '';
+        $lines = explode(chr(0x0D), $line);
+        $response = '';
 
         foreach ($lines as $current_line) {
 
             $pos = strpos($current_line, chr(0x00));
 
-            if ( ($pos !== FALSE) || (strlen($current_line) == 0) ) {
+            if (($pos !== false) || (strlen($current_line) == 0)) {
                 //no op
             } else {
                 $response .= $current_line . ' ';
@@ -216,27 +220,27 @@ class DocumentContentService extends Component
         $response = preg_replace('/[^a-zA-Z0-9\s,.\-\n\r\t@\/_()]/', '', $response);
 
         //Technique pulls text in on first line. Subsequent lines are noise.
-        $nl = stripos($response,"\n");
-        if($nl){
-            $response = substr($response,0,$nl);
+        $nl = stripos($response, "\n");
+        if ($nl) {
+            $response = substr($response, 0, $nl);
         }
         return $response;
     }
 
     /**
      * Extract text for any type included in Asset::KIND_WORD.
-     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 442
-     *
      * @param $filepath
      * @return string
+     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 442
+     *
      */
     public function extractContentFromWord($filepath): string
     {
-        Craft::info('Extracting text content from Word doc : '.$filepath, __METHOD__);
+        Craft::info('Extracting text content from Word doc : ' . $filepath, __METHOD__);
 
-        if($this->isZipFile($filepath)){
+        if ($this->isZipFile($filepath)) {
             $text = $this->extractContentFromDocx($filepath);
-        }else{
+        } else {
             $text = $this->extractContentFromDoc($filepath);
         }
         return $text;
@@ -247,11 +251,11 @@ class DocumentContentService extends Component
      * @param $filepath
      * @return string
      */
-    protected function extractContentFromXlsx( $filepath ): string
+    protected function extractContentFromXlsx($filepath): string
     {
         $xml_filename = 'xl/sharedStrings.xml'; //content file name
-        $zip_handle   = new \ZipArchive();
-        $response     = '';
+        $zip_handle = new \ZipArchive();
+        $response = '';
 
         if (true === $zip_handle->open($filepath)) {
 
@@ -260,9 +264,9 @@ class DocumentContentService extends Component
                 $doc = new \DOMDocument();
 
                 //Normalize XML data.
-                $xml_data   = $zip_handle->getFromIndex($xml_index);
+                $xml_data = $zip_handle->getFromIndex($xml_index);
                 $doc->loadXML($xml_data, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
-                $response   = strip_tags($doc->saveXML());
+                $response = strip_tags($doc->saveXML());
             }
             $zip_handle->close();
         }
@@ -271,20 +275,20 @@ class DocumentContentService extends Component
 
     /**
      * Extract text for any type included in Asset::KIND_EXCEL.
-     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 442
-     *
      * @param $filepath
      * @return string
+     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 442
+     *
      */
     public function extractContentFromExcel($filepath): string
     {
-        Craft::info('Extracting text content from Excel doc : '.$filepath, __METHOD__);
+        Craft::info('Extracting text content from Excel doc : ' . $filepath, __METHOD__);
 
-        if($this->isZipFile($filepath)){
+        if ($this->isZipFile($filepath)) {
             $text = $this->extractContentFromXlsx($filepath);
-        }else{
+        } else {
             //TODO: Add support for excel 97 (.xls) documents.
-            Craft::info('Cannot extract text from ' . $filepath,__METHOD__);
+            Craft::info('Cannot extract text from ' . $filepath, __METHOD__);
             $text = '';
         }
         return $text;
@@ -298,7 +302,7 @@ class DocumentContentService extends Component
     protected function extractContentFromPptx($filepath): string
     {
         $zip_handle = new \ZipArchive();
-        $response   = '';
+        $response = '';
 
         if (true === $zip_handle->open($filepath)) {
 
@@ -307,10 +311,10 @@ class DocumentContentService extends Component
 
             while (($xml_index = $zip_handle->locateName('ppt/slides/slide' . $slide_number . '.xml')) !== false) {
 
-                $xml_data   = $zip_handle->getFromIndex($xml_index);
+                $xml_data = $zip_handle->getFromIndex($xml_index);
 
                 $doc->loadXML($xml_data, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
-                $response  .= strip_tags($doc->saveXML());
+                $response .= strip_tags($doc->saveXML());
 
                 $slide_number++;
 
@@ -322,20 +326,20 @@ class DocumentContentService extends Component
 
     /**
      * Extract text for any type included in Asset::KIND_POWERPOINT.
-     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 525
-     *
      * @param $filepath
      * @return string
+     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 525
+     *
      */
     public function extractContentFromPresentation($filepath): string
     {
-        Craft::info('Extracting text content from Presentation doc : '.$filepath, __METHOD__);
+        Craft::info('Extracting text content from Presentation doc : ' . $filepath, __METHOD__);
 
-        if($this->isZipFile($filepath)){
+        if ($this->isZipFile($filepath)) {
             $text = $this->extractContentFromPptx($filepath);
-        }else{
+        } else {
             //TODO: Add support for powerpoint 97 (.ppt) documents
-            Craft::info('Cannot extract text from ' . $filepath,__METHOD__);
+            Craft::info('Cannot extract text from ' . $filepath, __METHOD__);
             $text = '';
         }
         return $text;
@@ -343,18 +347,18 @@ class DocumentContentService extends Component
 
     /**
      * Extract text for any type included in Asset::KIND_TEXT.
-     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 525
-     *
      * @param $filepath
      * @return string
+     * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 525
+     *
      */
     public function extractContentFromText($filepath): string
     {
-        Craft::info('Extracting text content from Text : '.$filepath, __METHOD__);
+        Craft::info('Extracting text content from Text : ' . $filepath, __METHOD__);
 
-        $text = file_get_contents($filepath,false);
+        $text = file_get_contents($filepath, false);
 
-        if(empty($text)){
+        if (empty($text)) {
             $text = '';
         }
         return $text;

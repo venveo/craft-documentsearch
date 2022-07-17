@@ -20,12 +20,12 @@ use craft\behaviors\EnvAttributeParserBehavior;
  */
 class Settings extends Model
 {
-    public $pdfToTextExecutable = '/usr/local/bin/pdftotext';
-    public $maximumDocumentSize = 1024 * 4;
-    public $indexVolumes = [];
+    public ?string $pdfToTextExecutable = '/usr/local/bin/pdftotext';
+    public int $maximumDocumentSize = 1024 * 4;
+    public array $indexVolumes = [];
 
 
-    public function behaviors()
+    public function behaviors(): array
     {
         $behaviors = parent::behaviors();
         $behaviors['parser'] = [
@@ -40,7 +40,7 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             ['pdfToTextExecutable', 'string'],

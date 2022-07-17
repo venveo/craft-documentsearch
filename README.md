@@ -1,4 +1,4 @@
-# Document Search plugin for Craft CMS 3.1
+# Document Search plugin for Craft CMS 4
 Extracts keywords and phrases from PDF documents and adds them to Craft CMS' native search index.
 
 **NOTE:** 

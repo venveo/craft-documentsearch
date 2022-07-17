@@ -34,10 +34,6 @@ use yii\base\Event;
  */
 class DocumentSearch extends Plugin
 {
-    /**
-     * @var DocumentSearch
-     */
-    public static $plugin;
 
     /**
      * @inheritdoc
@@ -45,7 +41,6 @@ class DocumentSearch extends Plugin
     public function init()
     {
         parent::init();
-        self::$plugin = $this;
 
         if (Craft::$app instanceof ConsoleApplication) {
             $this->controllerNamespace = 'venveo\documentsearch\console\controllers';
@@ -70,7 +65,7 @@ class DocumentSearch extends Plugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?\craft\base\Model
     {
         return new Settings();
     }
@@ -78,7 +73,7 @@ class DocumentSearch extends Plugin
     /**
      * @inheritdoc
      */
-    protected function settingsHtml(): string
+    protected function settingsHtml(): ?string
     {
         return Craft::$app->view->renderTemplate(
             'document-search/settings',

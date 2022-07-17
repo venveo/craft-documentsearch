@@ -1,7 +1,8 @@
 # Document Search Changelog
 
-## Unreleased
+## 4.0.0 - Unreleased
 ### Changed
+- Document Search now requires Craft 4
 - Added support for MS Office Documents. (.doc, .docx, .xlsx, .pptx, .txt)
 
 ## 1.0.3 - 2020-10-27

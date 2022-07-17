@@ -32,7 +32,7 @@ class ParseDocumentsController extends Controller
      */
     public function actionIndexAll()
     {
-        $volumes = Plugin::$plugin->getSettings()['indexVolumes'];
+        $volumes = Plugin::getInstance()->getSettings()['indexVolumes'];
 
         /** @var Asset $asset */
         $volumeCount = 0;
@@ -45,7 +45,7 @@ class ParseDocumentsController extends Controller
             Console::startProgress(0, count($assets));
             foreach ($assets as $i => $asset) {
                 try {
-                    Plugin::$plugin->documentContent->getAssetContentKeywords($asset);
+                    Plugin::getInstance()->documentContent->getAssetContentKeywords($asset);
                 } catch (\Exception $e) {
 //                    $this->stdout('Skipped a file - error: '. $asset->id . PHP_EOL);
                     Craft::warning('Skipped a file - error: '.$asset->id, 'document-search');
