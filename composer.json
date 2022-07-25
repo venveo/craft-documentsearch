@@ -11,7 +11,7 @@
         "document search"
     ],
     "support": {
-        "docs": "https://github.com/venveo/craft-documentsearch/blob/master/README.md",
+        "docs": "https://github.com/venveo/craft-documentsearch/blob/main/README.md",
         "issues": "https://github.com/venveo/craft-documentsearch/issues"
     },
     "license": "MIT",
@@ -41,7 +41,7 @@
         "handle": "document-search",
         "hasCpSettings": true,
         "hasCpSection": false,
-        "changelogUrl": "https://raw.githubusercontent.com/venveo/craft-documentsearch/master/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/venveo/craft-documentsearch/main/CHANGELOG.md",
         "components": {
             "documentSearch": "venveo\\documentsearch\\services\\DocumentSearch"
         },
