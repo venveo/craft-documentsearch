@@ -22,6 +22,6 @@ class AssetContentBehavior extends Behavior
     {
         /** @var Asset $asset */
         $asset = $this->owner;
-        return Plugin::$plugin->documentContent->getAssetContentKeywords($asset);
+        return Plugin::getInstance()->documentContent->getAssetContentKeywords($asset);
     }
 }

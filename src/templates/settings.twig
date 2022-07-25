@@ -12,13 +12,8 @@
  * @since     1.0.0
  */
 #}
-
 {% import "_includes/forms" as forms %}
 <style>
-    .fields > .field .checkboxfield {
-        margin: 0 0 20px 0;
-    }
-
     #settings-all-public-field label {
         font-weight: bold;
     }
@@ -47,24 +42,20 @@
 <div class="field">
     <div class="heading"><label>Indexed Volumes</label></div>
     {% set volumes = craft.app.volumes.allVolumes %}
-    {{ forms.checkboxField({
-        label: 'All',
-        id: 'all-public',
-        class: 'checkbox-all',
-        name: '',
-        value: '*',
-        checked: (settings['indexVolumes']|length == volumes|length)
-    }) }}
+    <ul>
     {% for option in volumes %}
-        {{ forms.checkboxField({
+        <li>
+        {{ forms.checkbox({
             label: option.name,
             id: 'indexVolumes-'~option.id,
             class: 'indexVolumes',
             name: 'indexVolumes[]',
-            value: option.id,
-            checked: (option.id in settings['indexVolumes'])
+            value: option.uid,
+            checked: (option.uid in settings['indexVolumes'])
         }) }}
+        </li>
     {% endfor %}
+    </ul>
 </div>
 
 <div class="field">
@@ -77,27 +68,3 @@
         errors: (settings is defined ? settings.getErrors('maximumDocumentSize') : null),
     }) }}
 </div>
-
-{% js %}
-var selectAll = document.getElementById('settings-all-public')
-var indexVolumes = document.querySelectorAll('.indexVolumes')
-var updateAllCheckbox = function (e) {
-    if ((e && e.checked === true) || this.checked === true) {
-        Object.keys(indexVolumes).forEach(function (k) {
-            indexVolumes[k].checked = true
-            indexVolumes[k].disabled = true
-        })
-    } else {
-        Object.keys(indexVolumes).forEach(function (k) {
-            indexVolumes[k].disabled = false
-        })
-    }
-}
-selectAll.addEventListener('click', updateAllCheckbox)
-document.body.addEventListener('submit', function (e) {
-    Object.keys(indexVolumes).forEach(function (k) {
-        indexVolumes[k].disabled = false
-    })
-})
-updateAllCheckbox(selectAll)
-{% endjs %}
