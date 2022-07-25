@@ -41,7 +41,7 @@ class DocumentContentService extends Component
         // check to make sure the volume is allowed to be indexed
         /** @var Volume $volume */
         $volume = $asset->getVolume();
-        if (!in_array($volume->id, $settings->indexVolumes, true)) {
+        if (!in_array($volume->uid, $settings->indexVolumes, true)) {
             return null;
         }
 
@@ -55,78 +55,60 @@ class DocumentContentService extends Component
         /*
          * Add support for common document types. Update pdf support to use a native php solution.
          */
-        $extractMethod = '';
-        switch ($asset->kind) {
-            case Asset::KIND_PDF:
-                $extractMethod = 'extractContentFromPDF';
-                break;
-            case Asset::KIND_EXCEL:
-                $extractMethod = 'extractContentFromExcel';
-                break;
-            case Asset::KIND_WORD:
-                $extractMethod = 'extractContentFromWord';
-                break;
-            case Asset::KIND_POWERPOINT:
-                $extractMethod = 'extractContentFromPresentation';
-                break;
-            case Asset::KIND_TEXT:
-                $extractMethod = 'extractContentFromText';
-                break;
-            default:
-                //No op;
-                Craft::info('Document search cannot index ' . $asset->kind . '. : ' . $asset->getFilename(true),
-                    __METHOD__);
-        }
-
-        if (!empty($extractMethod)) {
+        $extractMethod = match ($asset->kind) {
+            Asset::KIND_PDF => [$this, 'extractContentFromPDF'],
+            Asset::KIND_EXCEL => [$this, 'extractContentFromExcel'],
+            Asset::KIND_WORD => [$this, 'extractContentFromWord'],
+            Asset::KIND_POWERPOINT => [$this, 'extractContentFromPresentation'],
+            Asset::KIND_TEXT => [$this, 'extractContentFromText'],
+            default => null
+        };
+        $text = null;
+        if (!empty($extractMethod) && is_callable($extractMethod)) {
             $filepath = $asset->getCopyOfFile();
-
-            if ($this->hasMethod($extractMethod)) {
-                Craft::info("Doing $extractMethod. File path is $filepath", __METHOD__);
-                $text = $this->$extractMethod($filepath);
-            }
+            Craft::info("Doing $extractMethod[1]. File path is $filepath", __METHOD__);
+            $text = call_user_func($extractMethod, $filepath);
         }
 
         // If we have text, let's extract the keywords from it
-        if (isset($text)) {
-            // Try to figure out what language the document is in
-            $language = $asset->getSite()->language ?: 'en';
-            $languageParts = explode('-', $language);
-            $languageShort = strtolower(array_shift($languageParts));
-
-            // If we can - let's just store the entire text
-            $db = Craft::$app->getDb();
-            if ($isPgsql = $db->getIsPgsql()) {
-                $maxSize = Craft::$app->search->maxPostgresKeywordLength;
-            } else {
-                $maxSize = Db::getTextualColumnStorageCapacity(Schema::TYPE_TEXT);
-            }
-            if (mb_strlen($text) < $maxSize) {
-                return $text;
-            }
-
-            $scoredKeywords_1 = Plugin::getInstance()->rake->get($text, 1, $languageShort);
-            $scoredKeywords_2 = Plugin::getInstance()->rake->get($text, 2, $languageShort);
-            $scoredKeywords_3 = Plugin::getInstance()->rake->get($text, 3, $languageShort);
-            $count = count($scoredKeywords_1) + count($scoredKeywords_2) + count($scoredKeywords_3);
-
-            // If there are more than 100 keywords, let's just get the first third
-            if ($count > 100) {
-                $scoredKeywords = array_slice($scoredKeywords_1, 0, 30) +
-                    array_slice($scoredKeywords_2, 0, 30) +
-                    array_slice($scoredKeywords_3, 0, 30);
-            } else {
-                $scoredKeywords = $scoredKeywords_1 + $scoredKeywords_2 + $scoredKeywords_3;
-            }
-
-            // Assemble the keywords into a string
-            $results = implode(' ', array_keys($scoredKeywords));
-            Craft::info('Extracted ' . count($scoredKeywords) . ' keywords from: ' . $asset->id . ' in ' . $languageShort,
-                __METHOD__);
-        } else {
+        if (!$text) {
             Craft::info('No text found in ' . $asset->id, __METHOD__);
             return null;
         }
+        // Try to figure out what language the document is in
+        $language = $asset->getSite()->language ?: 'en';
+        $languageParts = explode('-', $language);
+        $languageShort = strtolower(array_shift($languageParts));
+
+        // If we can - let's just store the entire text
+        $db = Craft::$app->getDb();
+        if ($isPgsql = $db->getIsPgsql()) {
+            $maxSize = Craft::$app->search->maxPostgresKeywordLength;
+        } else {
+            $maxSize = Db::getTextualColumnStorageCapacity(Schema::TYPE_TEXT);
+        }
+        if (mb_strlen($text) < $maxSize) {
+            return $text;
+        }
+
+        $scoredKeywords_1 = Plugin::getInstance()->rake->get($text, 1, $languageShort);
+        $scoredKeywords_2 = Plugin::getInstance()->rake->get($text, 2, $languageShort);
+        $scoredKeywords_3 = Plugin::getInstance()->rake->get($text, 3, $languageShort);
+        $count = count($scoredKeywords_1) + count($scoredKeywords_2) + count($scoredKeywords_3);
+
+        // If there are more than 100 keywords, let's just get the first third
+        if ($count > 100) {
+            $scoredKeywords = array_slice($scoredKeywords_1, 0, 30) +
+                array_slice($scoredKeywords_2, 0, 30) +
+                array_slice($scoredKeywords_3, 0, 30);
+        } else {
+            $scoredKeywords = $scoredKeywords_1 + $scoredKeywords_2 + $scoredKeywords_3;
+        }
+
+        // Assemble the keywords into a string
+        $results = implode(' ', array_keys($scoredKeywords));
+        Craft::info('Extracted ' . count($scoredKeywords) . ' keywords from: ' . $asset->id . ' in ' . $languageShort,
+            __METHOD__);
         return $results;
     }
 
@@ -137,11 +119,11 @@ class DocumentContentService extends Component
      * @param string $filepath
      * @return string
      */
-    public function extractContentFromPDF($filepath): string
+    public function extractContentFromPDF(string $filepath): string
     {
         Craft::info('Extracting PDF content from: ' . $filepath, __METHOD__);
         // change directory to guarantee writable directory
-        chdir(Craft::$app->path->getAssetsPath() . DIRECTORY_SEPARATOR);
+        chdir(Craft::$app->path->getTempPath() . DIRECTORY_SEPARATOR);
         return Pdf::getText($filepath, App::parseEnv(Plugin::getInstance()->getSettings()->pdfToTextExecutable));
     }
 
@@ -150,7 +132,7 @@ class DocumentContentService extends Component
      * @param $filepath
      * @return bool
      */
-    public function isZipFile($filepath)
+    public function isZipFile(string $filepath)
     {
         $fh = fopen($filepath, 'r');
         $bytes = fread($fh, 4);
@@ -164,7 +146,7 @@ class DocumentContentService extends Component
      * @param $filepath
      * @return bool|string
      */
-    protected function extractContentFromDocx($filepath): string
+    protected function extractContentFromDocx(string $filepath): string
     {
         $response = '';
         $xml_filename = 'word/document.xml';
@@ -198,7 +180,7 @@ class DocumentContentService extends Component
      * @param $filepath
      * @return string
      */
-    protected function extractContentFromDoc($filepath): string
+    protected function extractContentFromDoc(string $filepath): string
     {
         $fileHandle = fopen($filepath, 'r');
         $line = @fread($fileHandle, filesize($filepath));
@@ -234,7 +216,7 @@ class DocumentContentService extends Component
      * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 442
      *
      */
-    public function extractContentFromWord($filepath): string
+    public function extractContentFromWord(string $filepath): string
     {
         Craft::info('Extracting text content from Word doc : ' . $filepath, __METHOD__);
 
@@ -251,7 +233,7 @@ class DocumentContentService extends Component
      * @param $filepath
      * @return string
      */
-    protected function extractContentFromXlsx($filepath): string
+    protected function extractContentFromXlsx(string $filepath): string
     {
         $xml_filename = 'xl/sharedStrings.xml'; //content file name
         $zip_handle = new \ZipArchive();
@@ -280,7 +262,7 @@ class DocumentContentService extends Component
      * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 442
      *
      */
-    public function extractContentFromExcel($filepath): string
+    public function extractContentFromExcel(string $filepath): string
     {
         Craft::info('Extracting text content from Excel doc : ' . $filepath, __METHOD__);
 
@@ -299,7 +281,7 @@ class DocumentContentService extends Component
      * @param $filepath
      * @return string
      */
-    protected function extractContentFromPptx($filepath): string
+    protected function extractContentFromPptx(string $filepath): string
     {
         $zip_handle = new \ZipArchive();
         $response = '';
@@ -331,7 +313,7 @@ class DocumentContentService extends Component
      * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 525
      *
      */
-    public function extractContentFromPresentation($filepath): string
+    public function extractContentFromPresentation(string $filepath): string
     {
         Craft::info('Extracting text content from Presentation doc : ' . $filepath, __METHOD__);
 
@@ -352,7 +334,7 @@ class DocumentContentService extends Component
      * @see craft/vendor/craftcms/cms/src/helpers/Assets.php Line 525
      *
      */
-    public function extractContentFromText($filepath): string
+    public function extractContentFromText(string $filepath): string
     {
         Craft::info('Extracting text content from Text : ' . $filepath, __METHOD__);
 

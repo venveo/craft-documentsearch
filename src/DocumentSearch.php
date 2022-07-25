@@ -16,6 +16,7 @@ use craft\console\Application as ConsoleApplication;
 use craft\elements\Asset;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\RegisterElementSearchableAttributesEvent;
+use craft\helpers\App;
 use venveo\documentsearch\behaviors\AssetContentBehavior;
 use venveo\documentsearch\models\Settings;
 use venveo\documentsearch\services\DocumentContentService;
@@ -80,7 +81,7 @@ class DocumentSearch extends Plugin
             [
                 'settings' => $this->getSettings(),
                 'binaries' => [
-                    'pdftotext' => is_file(Craft::parseEnv($this->getSettings()->pdfToTextExecutable))
+                    'pdftotext' => is_file(App::parseEnv($this->getSettings()->pdfToTextExecutable))
                 ]
             ]
         );
