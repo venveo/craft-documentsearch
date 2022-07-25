@@ -1,10 +1,13 @@
 # Document Search Changelog
 
 ## 4.0.0 - 2022/07/24
+
+### Added
+- Added support for MS Office Documents. (.doc, .docx, .xlsx, .pptx, .txt)
+
 ### Changed
 - Volume settings now store the volume uuid instead of ID - **ensure sure you update your settings**
 - Document Search now requires Craft 4
-- Added support for MS Office Documents. (.doc, .docx, .xlsx, .pptx, .txt)
 
 ## 1.0.3 - 2020-10-27
 ### Fixed
