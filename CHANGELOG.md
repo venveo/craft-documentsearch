@@ -1,5 +1,12 @@
 # Document Search Changelog
 
+## 4.0.1 - 2022/07/26
+
+### Fixed
+- Removed erroneous PHP 9 reference
+- Fix references to old "master" branch in composer.json
+
+
 ## 4.0.0 - 2022/07/24
 
 ### Added
