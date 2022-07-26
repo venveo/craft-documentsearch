@@ -22,7 +22,7 @@
         }
     ],
     "require": {
-        "php": "^8.0.2|^9.0",
+        "php": "^8.0.2",
         "ext-zip": "*",
         "ext-dom": "*",
         "ext-libxml": "*",
@@ -39,12 +39,7 @@
     "extra": {
         "name": "Document Search",
         "handle": "document-search",
-        "hasCpSettings": true,
-        "hasCpSection": false,
-        "changelogUrl": "https://raw.githubusercontent.com/venveo/craft-documentsearch/master/CHANGELOG.md",
-        "components": {
-            "documentSearch": "venveo\\documentsearch\\services\\DocumentSearch"
-        },
+        "changelogUrl": "https://raw.githubusercontent.com/venveo/craft-documentsearch/main/CHANGELOG.md",
         "class": "venveo\\documentsearch\\DocumentSearch"
     }
 }
