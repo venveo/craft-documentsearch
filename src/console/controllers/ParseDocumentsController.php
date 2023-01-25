@@ -39,7 +39,7 @@ class ParseDocumentsController extends Controller
         $errorCount = 0;
         foreach ($volumes as $volume) {
             $assetQuery = new AssetQuery(Asset::class);
-            $assetQuery->volumeId = $volume;
+            $assetQuery->uid = $volume;
 
             $assets = $assetQuery->all();
             Console::startProgress(0, count($assets));
