@@ -2,7 +2,7 @@
     "name": "venveo/craft-documentsearch",
     "description": "Extract the contents of text documents and add to Craft's search index",
     "type": "craft-plugin",
-    "version": "4.0.1",
+    "version": "4.0.2",
     "keywords": [
         "craft",
         "cms",
