@@ -36,6 +36,8 @@ use yii\base\Event;
 class DocumentSearch extends Plugin
 {
 
+    public bool $hasCpSettings = true;
+
     /**
      * @inheritdoc
      */
