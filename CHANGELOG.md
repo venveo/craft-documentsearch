@@ -1,5 +1,11 @@
 # Document Search Changelog
 
+## 4.0.2 - 2023/01/26
+
+### Fixed
+- Fixed error indexing assets on multiple volumes from console (Thanks @mofman)
+- Fixed CP settings not showing up properly
+
 ## 4.0.1 - 2022/07/26
 
 ### Fixed
